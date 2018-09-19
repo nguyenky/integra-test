@@ -1,0 +1,152 @@
+<section id="widget-grid" data-ng-controller="Controller">
+    <div class="row">
+        <article class="col-xs-6">
+            <div class="jarviswidget jarviswidget-color-teal">
+                <header>
+                    <span class="widget-icon"> <i class="fa fa-plus"></i> </span>
+                    <h2>New Listing</h2>
+                </header>
+                <div>
+                    <div class="widget-body">
+                        <form class="form-horizontal" ng-submit="submitListing()">
+                            <div class="form-group">
+                                <div class="col-xs-6">
+                                    <input class="form-control" type="text" ng-model="listing.asin" placeholder="ASIN" required>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-xs-6">
+                                    <input class="form-control" type="text" ng-model="listing.sku" placeholder="SKU" required>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-xs-6">
+                                    <input class="form-control" type="text" ng-model="listing.price" placeholder="Price" required>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-xs-6">
+                                    <input class="form-control" type="number" min="1" max="99" ng-model="listing.quantity" placeholder="Quantity">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-xs-6">
+                                    <button class="btn btn-danger" type="submit">
+                                        <i class="fa fa-plus"></i> Submit
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </article>
+    </div>
+    <div class="row" ng-show="items && items.length > 0">
+        <article class="col-xs-12">
+            <div class="jarviswidget jarviswidget-color-teal">
+                <header>
+                    <span class="widget-icon"> <i class="fa fa-list"></i> </span>
+                    <h2>Recently Queued for Listing</h2>
+                </header>
+                <div>
+                    <div class="widget-body">
+                        <table class="table table-responsive table-condensed table-bordered">
+                            <thead>
+                            <tr>
+                                <th>ASIN</th>
+                                <th>SKU</th>
+                                <th>Price</th>
+                                <th>Quantity</th>
+                                <th>Date Queued</th>
+                                <th>Date Listed</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr ng-repeat="i in items track by i.id">
+                                <td class="text-middle">
+                                    <a href="{{getAmazonUrl(i.asin)}}" target="_blank" class="action-link">
+                                        {{i.asin}}
+                                    </a>
+                                </td>
+                                <td class="text-middle">{{i.sku}}</td>
+                                <td class="text-middle">{{i.price}}</td>
+                                <td class="text-middle">{{i.quantity}}</td>
+                                <td class="text-middle">{{i.queue_date}}</td>
+                                <td class="text-middle">
+                                    <span ng-show="i.end_date">{{i.end_date}}</span>
+                                    <span ng-hide="i.end_date" class="label label-warning">Queued</span>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </article>
+    </div>
+</section>
+
+<script type="text/javascript">
+    pageSetUp();
+
+    function Controller ($scope, $http)
+    {
+        $scope.listing = {
+            sku: '',
+            asin: '',
+            quantity: 5,
+            price: null
+        };
+
+        $scope.submitListing = function()
+        {
+            $scope.listing.sku = $scope.listing.sku.toUpperCase().trim();
+
+            if ($scope.listing.sku.indexOf('EDP') == 0)
+            {
+                alert('The SKU cannot start with "EDP". Please enter the original SKU.');
+                return;
+            }
+
+            $http.post('/api/products/amazon/list_by_asin', $scope.listing)
+            .success(function (data)
+            {
+                $scope.listing = {
+                    sku: '',
+                    asin: '',
+                    quantity: 5,
+                    price: null
+                };
+
+                $scope.$popOk('Item has been added to the listing queue');
+
+                $scope.queueList();
+            }).error(function (data)
+            {
+                $scope.$popError("Error while queueing the item for listing", data);
+            });
+        };
+
+        $scope.items = [];
+
+        $scope.queueList = function()
+        {
+            $http.get('/api/amazon/queue_list')
+                    .success(function (data)
+                    {
+                        $scope.items = data;
+                    }).error(function (data)
+                    {
+                        $scope.$popError('Error while loading listing queue');
+                    });
+        };
+
+        $scope.getAmazonUrl = function(asin)
+        {
+            return 'https://www.amazon.com/gp/offer-listing/' + asin;
+        };
+
+        $scope.queueList();
+    }
+</script>

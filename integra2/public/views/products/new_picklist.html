@@ -1,0 +1,122 @@
+<section id="widget-grid">
+    <div class="row">
+        <article class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+            <div class="jarviswidget jarviswidget-color-teal">
+                <header>
+                    <span class="widget-icon"> <i class="fa fa-cubes"></i> </span>
+                    <h2>Picklist<span ng-show="has_list"> #{{list.number}}</span></h2>
+                </header>
+                <div>
+                    <div class="widget-body" ng-show="has_list && !submitted">
+                        <div ng-repeat="item in list.items" ng-show="$parent.current == $index">
+                            <div class="col-md-6">
+                                <div class="jumbotron" style="padding: 10px !important;">
+                                    <h1>{{item.bin}}</h1>
+                                    <h1 class="picklist-quantity">Quantity: {{item.quantity}}</h1>
+                                    <p>
+                                        {{item.brand}} {{item.name}} <span ng-show="item.sku">({{item.sku}})</span>
+                                        <br/>
+                                        <span class="text-success" ng-show="item.status == 1">Added to cart</span>
+                                        <span class="text-danger" ng-show="item.status == -1">Skipped: {{item.reason}}</span>
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="col-md-6 pull-right" style="min-height:300px">
+                                <img class="product-details-image" ng-src="http://catalog.eocenterprise.com/img/{{item.sku|nodash}}/cl1">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="widget-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div ng-hide="has_list || submitted">
+                                    <h5>If you are now in the warehouse and ready to pick items, click the button below to get started.</h5>
+                                    <p>
+                                        <br/>
+                                        <button class="btn btn-primary btn-lg" type="button" ng-disabled="loading" ng-click="newPicklist(false)">
+                                            <i class="fa fa-download" ng-class="{'fa-download': !loading, 'fa-spinner fa-spin': loading}"></i>
+                                            <span>Generate New Picklist</span>
+                                        </button>
+                                    </p>
+                                    <div ng-show="unfinished">
+                                        <br/>
+                                        <h5>You can also resume a previously generated picklist below that has not yet been completed:</h5>
+                                        <p ng-repeat="u in unfinished">
+                                            <a class="action-link" ng-click="resumePicklist(u.id)">{{u.date}} - {{u.id}}</a>
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div ng-show="has_list && !submitted && list.items && list.items.length > 0">
+                                    <div class="col-md-12">
+                                        <button class="btn btn-lg" type="submit" ng-disabled="!current || loading" ng-click="current = current - 1">
+                                            <i class="fa fa-arrow-circle-left"></i>
+                                        </button>
+                                        &nbsp;&nbsp;
+                                        <button class="btn btn-danger btn-lg" type="submit" ng-disabled="list.items[current].status == -1 || loading" ng-click="skipItem()">
+                                            <i class="fa fa-times-circle"></i>
+                                            <span>Skip</span>
+                                        </button>
+                                        &nbsp;&nbsp;
+                                        <button class="btn btn-success btn-lg" type="submit" ng-disabled="list.items[current].status == 1 || loading" ng-click="addItem()">
+                                            <i class="fa fa-plus-circle"></i>
+                                            <span>Add to Cart</span>
+                                        </button>
+                                        &nbsp;&nbsp;
+                                        <button class="btn btn-lg" type="submit" ng-disabled="current == (list.items.length - 1) || loading" ng-click="current = current + 1">
+                                            <i class="fa fa-arrow-circle-right"></i>
+                                        </button>
+                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                        <button class="btn btn-primary btn-lg" type="button" ng-disabled="loading" ng-click="allDone()">
+                                            <i ng-show="done == list.items.length" class="fa fa-check-circle" ng-class="{'fa-download': !loading, 'fa-spinner fa-spin': loading}"></i>
+                                            <span>All Done</span><span ng-show="done == list.items.length">!</span><span ng-show="done != list.items.length">?</span>
+                                        </button>
+                                        <p>
+                                            <br/>
+                                            <strong>{{done}} out of {{list.items.length}} completed</strong>
+                                            <div class="progress progress-lg">
+                                                <div class="progress-bar bg-color-blue" role="progressbar" style="width: {{ (done * 100/list.items.length) }}%"></div>
+                                            </div>
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div class="alert alert-success alert-block" ng-show="has_list && submitted">
+                                    <h4 class="alert-heading"><i class="fa fa-cubes"></i> Picklist Complete!</h4>
+                                    <h5>
+                                        The items in your cart are now ready for shipping under picklist #<strong>{{list.number}}</strong>
+                                        <p>
+                                            <br/>
+                                            <button class="btn btn-primary btn-lg" type="button" ng-disabled="loading" ng-click="newPicklist(true)">
+                                                <i class="fa fa-download" ng-class="{'fa-download': !loading, 'fa-spinner fa-spin': loading}"></i>
+                                                <span>Generate Another Picklist</span>
+                                            </button>
+                                        </p>
+                                    </h5>
+                                </div>
+
+                                <div class="alert alert-info alert-block" ng-show="has_list && list.items.length == 0 && !submitted">
+                                    <h4 class="alert-heading">No Pending Orders</h4>
+                                    <h5>
+                                        There are no pending orders at this time. Please check back later.
+                                        <p>
+                                            <br/>
+                                            <button class="btn btn-primary btn-lg" type="button" ng-disabled="loading" ng-click="newPicklist(false)">
+                                                <i class="fa fa-download" ng-class="{'fa-download': !loading, 'fa-spinner fa-spin': loading}"></i>
+                                                <span>Generate New Picklist</span>
+                                            </button>
+                                        </p>
+                                    </h5>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </article>
+    </div>
+</section>
+
+<script type="text/javascript">
+    pageSetUp();
+</script>

@@ -1,0 +1,235 @@
+<section id="widget-grid" data-ng-controller="Controller">
+	<div class="row">
+		<article class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+			<div class="jarviswidget jarviswidget-color-teal">
+				<header>
+					<span class="widget-icon"><i class="fa fa-bar-chart-o"></i></span>
+					<h2>Order Status Snapshots</h2>
+                    <div class="widget-toolbar" role="menu">
+
+                        <div class="btn-group">
+                            <button class="btn dropdown-toggle btn-xs btn-warning" data-toggle="dropdown">
+                                {{days}} days <i class="fa fa-caret-down"></i>
+                            </button><div class="dropdown-backdrop"></div>
+                            <ul class="dropdown-menu pull-right">
+                                <li>
+                                    <a href="#" ng-click="reloadData(2)">2 days</a>
+                                </li>
+                                <li>
+                                    <a href="#" ng-click="reloadData(5)">5 days</a>
+                                </li>
+                                <li>
+                                    <a href="#" ng-click="reloadData(7)">7 days</a>
+                                </li>
+                                <li>
+                                    <a href="#" ng-click="reloadData(14)">14 days</a>
+                                </li>
+                                <li>
+                                    <a href="#" ng-click="reloadData(21)">21 days</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+				</header>
+				<div>
+					<div class="widget-body chart-container">
+                        <canvas class="chart chart-bar" chart-data="stats" chart-labels="stats_x" chart-series="stats_u" chart-options="options" chart-click="onClick"></canvas>
+					</div>
+				</div>
+			</div>
+		</article>
+	</div>
+
+    <div class="row" ng-show="snapDate">
+        <article class="col-xs-12">
+            <div class="jarviswidget jarviswidget-color-teal">
+                <header>
+                    <span class="widget-icon"><i class="fa fa-bar-chart-o"></i></span>
+                    <h2>Orders with status "{{status}}" on {{snapDate}}</h2>
+                </header>
+                <div>
+                    <div class="widget-body no-padding">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                <tr>
+                                    <th class="text-center">Date</th>
+                                    <th class="text-center">Record #</th>
+                                    <th class="text-center">Fulfillment</th>
+                                    <th class="text-center">Shipping</th>
+                                    <th class="text-center">Remarks</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr ng-repeat="entry in orders">
+                                    <td>
+                                        <span class="nowrap">{{entry.order_date.split(' ')[0]}}</span>
+                                        <br/><span class="nowrap">{{entry.order_date.split(' ')[1]}}</span>
+                                    </td>
+                                    <td class="nowrap">
+                                        <a class="action-link" href="/#/orders/view/{{entry.id}}">{{entry.record_num}}</a>
+                                        <div>
+                                            {{entry.store}}
+                                            <span ng-show="entry.agent!=entry.store">
+                                                / {{entry.agent.split('@')[0]}}
+                                            </span>
+                                        </div>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="label lonetag" ng-class="getColor(fulfilmentOptions, entry.fulfilment)">{{getLabel(fulfilmentOptions, entry.fulfilment)}}</span>
+                                    </td>
+                                    <td class="text-center">
+                                        <i class="fa fa-flash" ng-show="entry.speed=='Next Day / Overnight'"></i>
+                                        <i class="fa fa-flash" ng-show="entry.speed=='Second Day'"></i>
+                                        {{entry.speed}}
+                                        <div ng-show="entry.tracking_num.length > 0">
+                                            {{entry.tracking_num}}
+                                        </div>
+                                    </td>
+                                    <td>{{entry.last_remarks | characters:70}}</td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </article>
+    </div>
+</section>
+
+<script type="text/javascript">
+	pageSetUp();
+
+    function Controller ($scope, $http, $filter)
+    {
+        window.scope = $scope;
+        $scope.options = {
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        beginAtZero:true
+                    }
+                }]
+            },
+            legend: {
+                display: true
+            }
+        };
+
+        $scope.onClick = function (points, evt) {
+            var active = this.chart.getElementAtEvent(evt)[0]._model;
+            var snap_date = active.label;
+            var status = active.datasetLabel;
+
+            $http.get('/api/orders/status_graph_orders?snap_date=' + encodeURIComponent(snap_date) + '&status=' + encodeURIComponent(status))
+                    .success(function (data) {
+                        $scope.snapDate = snap_date;
+                        $scope.status = status;
+                        $scope.orders = data.orders;
+                    })
+                    .error(function () {
+                        $scope.$popError('Unable to load orders');
+                    });
+        };
+
+        $scope.stats = [];
+        $scope.stats_x = [];
+        $scope.stats_u = [];
+
+        $scope.reloadData = function(days) {
+            $scope.days = days;
+
+            $http.get('/api/orders/status_graph?days=' + days)
+                    .success(function (data) {
+                        var now = new Date();
+                        var utc = now.getTime() + (now.getTimezoneOffset() * 60000);
+                        now = new Date(utc + (3600000*-4));
+
+                        $scope.stats = [];
+                        $scope.stats_x = [];
+                        $scope.stats_u = [];
+
+                        for (var i = 0; i < data.stats.length; i++) {
+                            if ($scope.stats_u.indexOf(data.stats[i].u) === -1)
+                                $scope.stats_u.push(data.stats[i].u);
+                        }
+
+                        for (var i = 0; i < $scope.stats_u.length; i++) {
+                            var current = [];
+
+                            for (var h = $scope.days; h >= 0; h--) {
+                                var cur = new Date();
+                                cur.setDate(now.getDate() - h);
+
+                                var yy = cur.getFullYear().toString();
+                                var mm = (cur.getMonth() + 1).toString();
+                                var dd = cur.getDate().toString();
+
+                                var ch = [yy, '-', mm.length == 1 ? '0' + mm : mm, '-', dd.length == 1 ? '0' + dd : dd].join('');
+
+                                if ($scope.stats_x.indexOf(ch) === -1)
+                                    $scope.stats_x.push(ch);
+
+                                var val = 0;
+
+                                for (var j = 0; j < data.stats.length; j++) {
+                                    if (data.stats[j].u == $scope.stats_u[i] && data.stats[j].d == ch) {
+                                        val = data.stats[j].c;
+                                        break;
+                                    }
+                                }
+
+                                current.push(val);
+                            }
+
+                            $scope.stats.push(current);
+                        }
+                    })
+                    .error(function () {
+                        $scope.$popError('Unable to load graph data');
+                    });
+        };
+
+        $scope.fulfilmentOptions = [
+            {
+                id: 0,
+                label: 'Unspecified',
+                color: 'label-danger'
+            },
+            {
+                id: 1,
+                label: 'Direct',
+                color: 'label-success'
+            },
+            {
+                id: 2,
+                label: 'Pickup',
+                color: 'label-warning'
+            },
+            {
+                id: 3,
+                label: 'EOC',
+                color: 'label-primary'
+            }
+        ];
+
+        $scope.getColor = function(arr, val)
+        {
+            for (var i = 0; i < arr.length; i++)
+            {
+                if (arr[i].id == val) return arr[i].color;
+            }
+        };
+
+        $scope.getLabel = function(arr, val)
+        {
+            for (var i = 0; i < arr.length; i++)
+            {
+                if (arr[i].id == val) return arr[i].label;
+            }
+        };
+
+        $scope.reloadData(5);
+    }
+</script>

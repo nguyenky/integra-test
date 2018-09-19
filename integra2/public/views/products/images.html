@@ -1,0 +1,401 @@
+<section id="widget-grid" data-ng-controller="Controller">
+    <div class="row">
+        <article class="col-xs-12 col-sm-6 col-md-4 col-lg-4">
+            <div class="jarviswidget jarviswidget-color-teal">
+                <header>
+                    <span class="widget-icon"><i class="fa fa-image"></i></span>
+                    <h2>Search MPN</h2>
+                </header>
+                <div>
+                    <div class="widget-body">
+                        <form class="form-inline">
+                            <div class="form-group">
+                                <label class="sr-only" for="mpn">MPN</label>
+                                <input type="search" class="form-control text-cursor" id="mpn" placeholder="MPN" ng-model="mpn" ng-readonly="images != null">
+                            </div>
+                            <button type="submit" class="btn btn-primary" ng-click="search()" ng-hide="images != null" data-ng-disabled="mpn.length == 0">Search</button>
+                            <button type="submit" class="btn btn-primary" ng-click="reset()" ng-show="images != null">Search Another</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </article>
+    </div>
+
+    <div class="row" ng-show="images != null">
+        <article class="col-xs-12">
+            <div class="jarviswidget jarviswidget-color-teal">
+                <header>
+                    <span class="widget-icon"> <i class="fa fa-image"></i> </span>
+                    <h2>Product Images</h2>
+                </header>
+                <div class="widget-body" ng-hide="images.length">
+                    <p>No matching products.</p>
+                </div>
+                <div class="widget-body" ng-show="images.length">
+                    <div class="col-xs-12 col-sm-12 col-md-4">
+                        <form class="form-horizontal">
+                            <div ng-show="current != null">
+                                <div class="form-group">
+                                    <label class="control-label col-xs-2">Domain</label>
+                                    <div class="col-xs-10">
+                                        <select class="form-control" ng-model="domain" ng-change="getImage()">
+                                            <option value="https://qeautoparts.com/">QE</option>
+                                            <option value="https://europortparts.com/">Europort</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="control-label col-xs-2">Quantity</label>
+                                    <div class="col-xs-10">
+                                        <input type="number" min="1" max="99" class="form-control" ng-model="qt" ng-blur="getImage()">
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="control-label col-xs-2">Rotation angle</label>
+                                    <div class="col-xs-10">
+                                        <input type="number" min="0" max="359" class="form-control" ng-model="rt" ng-blur="getImage()">
+                                    </div>
+                                </div>
+
+                                <div class="checkbox">
+                                    <label>
+                                        <input type="checkbox" ng-model="bo" ng-change="getImage()"> Border
+                                    </label>
+                                </div>
+
+                                <div class="checkbox">
+                                    <label>
+                                        <input type="checkbox" ng-model="lo" ng-change="getImage()"> Logo
+                                    </label>
+                                </div>
+
+                                <div class="checkbox">
+                                    <label>
+                                        <input type="checkbox" ng-model="cl1" ng-change="getImage()"> Clear copyright
+                                    </label>
+                                </div>
+
+                                <div class="checkbox">
+                                    <label>
+                                        <input type="checkbox" ng-model="tr" ng-change="getImage()"> Trim edges
+                                    </label>
+                                </div>
+
+                                <div class="checkbox">
+                                    <label>
+                                        <input type="checkbox" ng-model="tneb" ng-change="getImage()"> Small size
+                                    </label>
+                                </div>
+
+                                <div class="checkbox">
+                                    <label>
+                                        <input type="checkbox" ng-model="fh" ng-change="getImage()"> Flip horizontal
+                                    </label>
+                                </div>
+
+                                <div class="checkbox">
+                                    <label>
+                                        <input type="checkbox" ng-model="fv" ng-change="getImage()"> Flip vertical
+                                    </label>
+                                </div>
+
+                                <div class="checkbox">
+                                    <label>
+                                        <input type="checkbox" ng-model="br" ng-change="getImage()"> Show brand (if available)
+                                    </label>
+                                </div>
+
+                                <div class="checkbox">
+                                    <label>
+                                        <input type="checkbox" ng-model="wm" ng-change="getImage()"> Show watermark
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="form-group margin-top-10">
+                                <strong>Upload product image</strong>
+                                <div class="dropzone" id="dropImage"></div>
+                            </div>
+
+                            <div class="form-group margin-top-10" ng-show="brand">
+                                <strong>Replace brand image</strong>
+                                <div class="dropzone" id="dropBrand"></div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-8">
+                        <div>
+                            <span data-ng-repeat="i in images">
+                                <a ng-click="setCurrent(i)"><img class="preview-tn {{(i.id == current.id) ? 'preview-tn-active' : ''}}" src="{{getThumbnail(i)}}" /></a>
+                            </span>
+                        </div>
+                        <div ng-show="current != null" class="margin-bottom-10">
+                            <img src="{{imageUrlPreview}}" />
+                        </div>
+                        <div ng-show="current != null">
+                            <div ng-hide="current.id">
+                                <strong>This is the original image.</strong>
+                            </div>
+
+                            <div ng-show="current.id" class="margin-top-10">
+                                <button type="button" class="btn btn-danger" ng-click="deleteImage()">Delete</button>
+                                <button type="button" class="btn btn-primary" ng-click="makePrimary()">Make Primary</button>&nbsp;&nbsp;
+                            </div>
+
+                            <div class="form-group margin-top-10">
+                                <label for="imageUrl">Image URL</label>
+                                <input type="text" class="form-control text-cursor" id="imageUrl" ng-model="imageUrl" readonly>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </article>
+    </div>
+</section>
+
+<script type="text/javascript">
+    pageSetUp();
+
+    var pagefunction = function()
+    {
+        Dropzone.autoDiscover = false;
+        $('#dropImage').dropzone(
+                {
+                    paramName: 'file',
+                    url: "/api/products/images",
+                    addRemoveLinks : false,
+                    uploadMultiple: false,
+                    maxFilesize: 10,
+                    init: function()
+                    {
+                        var scope = angular.element($('#dropImage')).scope();
+
+                        this.on("sending", function(file, xhr, fd)
+                        {
+                            var scope = angular.element($('#dropImage')).scope();
+                            fd.append('sku', scope.mpn);
+                        });
+
+                        this.on("success", function(file, response)
+                        {
+                            var scope = angular.element($('#dropImage')).scope();
+                            scope.$apply(function()
+                            {
+                                scope.images.push(response);
+                                scope.current = scope.images[scope.images.length - 1];
+                                scope.getImage();
+                            });
+                        });
+
+                        this.on("error", function(file, response)
+                        {
+                            var scope = angular.element($('#dropImage')).scope();
+                            scope.$apply(function() {scope.$popError(response);});
+                            return response;
+                        });
+                    }
+                });
+
+        $('#dropBrand').dropzone(
+                {
+                    paramName: 'file',
+                    url: "/api/products/brand_image",
+                    addRemoveLinks : false,
+                    uploadMultiple: false,
+                    maxFilesize: 10,
+                    init: function()
+                    {
+                        var scope = angular.element($('#dropBrand')).scope();
+
+                        this.on("sending", function(file, xhr, fd)
+                        {
+                            var scope = angular.element($('#dropBrand')).scope();
+                            fd.append('brand', scope.brand);
+                        });
+
+                        this.on("success", function(file, response)
+                        {
+                            var scope = angular.element($('#dropBrand')).scope();
+                            scope.$apply(function()
+                            {
+                                scope.getImage();
+                            });
+                        });
+
+                        this.on("error", function(file, response)
+                        {
+                            var scope = angular.element($('#dropBrand')).scope();
+                            scope.$apply(function() {scope.$popError(response);});
+                            return response;
+                        });
+                    }
+                });
+    };
+
+    loadScript("js/plugin/dropzone/dropzone.min.js", pagefunction);
+
+    function Controller ($scope, $http)
+    {
+        $scope.defaultDomain = 'https://qeautoparts.com/';
+        $scope.brand = null;
+
+        $scope.search = function()
+        {
+            $http.get('/api/products/images/' + $scope.mpn)
+                .success(function (data)
+                {
+                    $scope.brand = data.brand;
+                    $scope.images = data.images;
+
+                    if ($scope.images.length > 0)
+                    {
+                        $scope.current = $scope.images[0];
+                        $scope.getImage();
+                    }
+                    else $scope.current = null;
+                }).error(function (data)
+                {
+                    $scope.images = null;
+                    $scope.brand = null;
+                    $scope.$popError('Error while searching MPN', data);
+                });
+        };
+
+        $scope.makePrimary = function()
+        {
+            if (!$scope.current.id) return;
+
+            var idx = -1;
+
+            for (var i = 0; i < $scope.images.length; i++)
+            {
+                if ($scope.images[i].id == $scope.current.id)
+                {
+                    idx = i;
+                    break;
+                }
+            }
+
+            if (idx == -1) return;
+
+            $scope.images.splice(0, 0, $scope.images.splice(idx, 1)[0]);
+            $scope.current = $scope.images[0];
+            $http.put('/api/products/images/set_primary', {mpn: $scope.current.mpn, id: $scope.current.id})
+                .success(function ()
+                {
+                    $scope.$popOk('Primary image successfully set');
+                }).error(function (data)
+                {
+                    $scope.$popError('Error while setting primary image', data);
+                });
+        };
+
+        $scope.deleteImage = function()
+        {
+            if (!$scope.current.id) return;
+
+            if (!confirm('Are you sure you want to delete this image?'))
+                return;
+
+            var idx = -1;
+
+            for (var i = 0; i < $scope.images.length; i++)
+            {
+                if ($scope.images[i].id == $scope.current.id)
+                {
+                    idx = i;
+                    break;
+                }
+            }
+
+            if (idx == -1) return;
+
+            $http.delete('/api/products/images/' + $scope.current.name)
+                .success(function (data)
+                {
+                    $scope.images.splice(idx, 1);
+
+                    if ($scope.images.length > 0)
+                    {
+                        $scope.current = $scope.images[0];
+                        $scope.getImage();
+                    }
+                    else $scope.current = null;
+
+                    $scope.$popOk('Image deleted successfully');
+                }).error(function (data)
+                {
+                    $scope.$popError('Error while deleting image', data);
+                });
+        };
+
+        $scope.reset = function()
+        {
+            $scope.brand = null;
+            $scope.mpn = '';
+            $scope.images = null;
+            $scope.current = null;
+            $scope.domain = $scope.defaultDomain;
+            $scope.cl1 = true;
+            $scope.tr = false;
+            $scope.tneb = false;
+            $scope.fh = false;
+            $scope.fv = false;
+            $scope.bo = false;
+            $scope.lo = false;
+            $scope.qt = 1;
+            $scope.rt = 0;
+            $scope.wm = 0;
+        };
+
+        $scope.reset();
+
+        $scope.getThumbnail = function(i)
+        {
+            return $scope.defaultDomain + 'img/' + i.name + '/cl1-tneb-rg1';
+        };
+
+        $scope.getImage = function()
+        {
+            var args = [];
+
+            if ($scope.bo)
+                args.push('bo');
+            if ($scope.lo)
+                args.push('lo');
+            if ($scope.cl1)
+                args.push('cl1');
+            if ($scope.tr)
+                args.push('tr');
+            if ($scope.tneb)
+                args.push('tneb');
+            if ($scope.fh)
+                args.push('fh');
+            if ($scope.fv)
+                args.push('fv');
+            if ($scope.br)
+                args.push('br');
+            if ($scope.wm)
+                args.push('wm');
+            if ($scope.qt > 1)
+                args.push('qt' + $scope.qt);
+            if ($scope.rt > 0)
+                args.push('rt' + $scope.rt);
+
+            $scope.imageUrl = $scope.domain + 'img/' + $scope.current.name + '/' + args.join('-');
+
+            args.push('rg1');
+            $scope.imageUrlPreview = $scope.domain + 'img/' + $scope.current.name + '/' + args.join('-') + '?_=' + (new Date().getTime());
+        };
+
+        $scope.setCurrent = function(i)
+        {
+            $scope.current = i;
+            $scope.getImage();
+        };
+    }
+</script>

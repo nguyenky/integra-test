@@ -1,0 +1,61 @@
+
+<div ng-controller="Controller">
+
+</div>
+<script type="text/javascript">
+    //pageSetUp();
+
+    function Controller ($scope, $http, $modal, $location, $routeParams)
+    {
+        $scope.keyword = $routeParams.keyword;
+
+        $scope.entry = null;
+        $scope.showAutoComplete = false;
+
+        $scope.newHist = {
+            remarks: '',
+            show_sales: true,
+            show_data: true,
+            show_pricing: true,
+            show_shipping: true
+        };
+
+
+        $scope.viewOrder = function(id)
+        {
+            $location.path('/orders/view/' + id);
+            return true;
+        };
+
+        $scope.redirect = function()
+        {
+            $location.path('/orders/list');
+            return true;
+        }
+
+        $scope.getOrder = function(orderId) {
+            $scope.showAutoComplete = false;
+            $scope.reloadData(orderId);
+        };
+
+        $scope.reloadData = function(keyword)
+        {
+            $http.get('/api/orders/search/' + keyword)
+                    .success(function (data) {
+                        if (data != null) {
+                            $scope.id = data.id;
+                            $scope.viewOrder($scope.id);
+                        }
+                    })
+                    .error(function (data) {
+                        $scope.$popError('Unable to load order details.', data);
+                        $scope.redirect();
+                    });
+        };
+
+        $scope.reloadData($scope.keyword);
+
+}
+
+
+</script>

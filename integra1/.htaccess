@@ -1,0 +1,8 @@
+Allow from all
+Satisfy Any
+
+RewriteEngine On
+RewriteRule ^emsg/(.*) http://emsg.eocenterprise.com/emsg/$1 [L,QSA,R=302]
+
+RewriteEngine On
+RewriteRule ^projectmanagement(.*) http://emsg.eocenterprise.com/projectmanagement$1 [L,QSA,R=302]

@@ -1,0 +1,48 @@
+<section id="widget-grid" data-ng-controller="EbayMonitorMigrationController">
+    <div class="row">
+        <article class="col-xs-12 col-sm-10 col-md-10 col-lg-10">
+            <div class="jarviswidget jarviswidget-color-teal">
+                <header>
+                    <span class="widget-icon"> <i class="fa fa-edit"></i> </span>
+                    <h2 ng-hide="newEntry.id">Upload file to migrate vs_ours</h2>
+                </header>
+                <div>
+                    <div class="widget-body">
+                        <form class="form-horizontal" ng-submit="uploadCsv(migration)" name="myForm">
+                            <fieldset>
+                                <div class="form-group">
+                                    <div class="col-xs-3 col-sm-3 col-md-3">
+                                        Upload file CSV
+                                    </div>
+                                    <div class="col-xs-9 col-sm-9 col-md-9">
+                                        <input type="file" ngf-select ng-model="migration" name="file"    
+                                                     accept="csv/*"  required placeholder="CSV file" 
+                                                     ngf-model-invalid="errorFile">
+                                              <i ng-show="myForm.file.$error.required">*required</i><br>
+                                        
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="col-xs-9 col-sm-9 col-md-9">
+                                    </div>
+                                    <div class="col-xs-3 col-sm-3 col-md-3">
+                                        <button class="form-control" type="submit"> Submit </button>
+                                    </div>
+                                </div>
+
+                            </fieldset>
+                        </form>
+                        
+                    </div>
+                </div>
+            </div>
+        </article>
+    </div>
+
+</section>
+
+<script type="text/javascript">
+    pageSetUp();
+
+
+</script>

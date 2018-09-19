@@ -1,0 +1,68 @@
+<section id="widget-grid" data-ng-controller="Controller">
+	<div class="row">
+		<article class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+			<div class="jarviswidget jarviswidget-color-teal">
+				<header>
+					<span class="widget-icon"><i class="fa fa-users"></i></span>
+					<h2>Access Control</h2>
+				</header>
+				<div>
+					<div class="widget-body no-padding">
+						<table class="table table-striped table-hover">
+                            <thead>
+                            <tr>
+                                <th>Page</th>
+                                <th ng-repeat="group in data.groups" class="text-center">
+                                    {{group}}
+                                </th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr ng-repeat="page in data.pages">
+                                <td>{{page.title}}</td>
+                                <td ng-repeat="acl in page.acl" class="text-center">
+                                    <input type="checkbox" ng-model="acl.state" ng-change="saveAcl(page.url, acl)" ng-hide="acl.saving"/>
+                                    <i class="fa fa-spinner fa-spin" ng-show="acl.saving" />
+                                </td>
+                            </tr>
+                            </tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</article>
+	</div>
+</section>
+
+<script type="text/javascript">
+	pageSetUp();
+
+    function Controller ($scope, $http)
+    {
+        $scope.data = null;
+
+        $scope.saveAcl = function(url, acl)
+        {
+            acl.saving = true;
+            $http.put('/api/acl', {url: url, group: acl.group, state: acl.state})
+                .success(function(data)
+                {
+                    acl.saving = false;
+                })
+                .error(function()
+                {
+                    obj.$popError("Error while saving changes");
+                });
+        };
+
+        $http.get('/api/acl')
+                .success(function(data)
+                {
+                    $scope.data = data;
+                })
+                .error(function()
+                {
+                    obj.$popError("Error while loading access control list");
+                });
+    }
+</script>

@@ -1,0 +1,35 @@
+<section id="widget-grid">
+    <div class="row">
+        <article class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+            <div class="jarviswidget jarviswidget-color-teal">
+                <header>
+                    <span class="widget-icon"> <i class="fa fa-cubes"></i> </span>
+                    <h2>Products</h2>
+                </header>
+                <div>
+                    <div class="widget-body no-padding">
+                        <table ng-table="tableParams" show-filter="true" class="table table-striped table-hover">
+                            <tbody>
+                            <tr ng-repeat="entry in $data" ng-click="openEntry(entry.sku)" class="action-link">
+                                <td data-title="'SKU'" filter="{'sku':'text'}">{{entry.sku}}</td>
+                                <td data-title="'Name'">{{entry.name}}</td>
+                                <td data-title="'Brand'">{{entry.brand}}</td>
+                                <!-- TODO: add checkbox group filter for attributes -->
+                                <td data-title="'Attributes'" class="text-center">
+                                    <i ng-show="entry.ground_only" class="fa fa-truck"></i>
+                                    <i ng-show="entry.is_kit" class="fa fa-briefcase"></i>
+                                    <i ng-show="!entry.is_active" class="fa fa-ban"></i>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </article>
+    </div>
+</section>
+
+<script type="text/javascript">
+    pageSetUp();
+</script>

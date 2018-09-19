@@ -1,0 +1,404 @@
+<section id="widget-grid" data-ng-controller="Controller">
+	<div class="row">
+		<article class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+			<div class="jarviswidget jarviswidget-color-teal">
+				<header>
+					<span class="widget-icon"><i class="fa fa-dollar"></i></span>
+					<h2>eBay Price Calculator</h2>
+				</header>
+				<div>
+					<div class="widget-body">
+                        <form class="form-horizontal" ng-submit="saveEntry(newEntry.id, newEntry)">
+                            <fieldset>
+                                <legend>Components</legend>
+                                <div class="form-group">
+                                    <div class="col-xs-2">MPN</div>
+                                    <div class="col-xs-2">Quantity</div>
+                                </div>
+                                <div class="form-group" ng-repeat="component in components">
+                                    <div class="col-xs-2">
+                                        <input class="form-control" placeholder="{{$index && 'Add more kit components' || ''}}" type="text" ng-model="component.mpn" ng-change-on-blur="mpnChanged(component)" />
+                                        <p class="note">{{component.desc}}</p>
+                                    </div>
+                                    <div class="col-xs-2">
+                                        <input class="form-control" type="text" ng-model="component.qty" ng-change-on-blur="updateImage(component)"/>
+                                    </div>
+                                    <div class="col-xs-1 text-center">
+                                        <button class="btn btn-default" type="button" ng-click="deleteComponent($index)" ng-show="$index">
+                                            <i class="fa fa-trash-o"></i>
+                                        </button>
+                                    </div>
+                                    <div class="col-xs-7">
+                                        <img ng-show="component.image" src="{{component.image}}" />
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="col-xs-1"></div>
+                                    <div class="col-xs-4">
+                                        <button class="btn btn-primary" type="button" ng-click="calc()" ng-disabled="noCalc">{{calcLabel}}</button>
+                                    </div>
+                                </div>
+                            </fieldset>
+                            <fieldset ng-show="res.supplier">
+                                <legend>Results</legend>
+                                <div class="form-group">
+                                    <label class="col-xs-1 control-label"></label>
+                                    <div class="col-xs-2">
+                                        Non-Warehouse
+                                    </div>
+                                    <div class="col-xs-2">
+                                        Warehouse
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-xs-1 control-label">Cost</label>
+                                    <div class="col-xs-2">
+                                        <input class="form-control" type="text" ng-model="res.cost_nonexport" readonly>
+                                    </div>
+                                    <div class="col-xs-2">
+                                        <input class="form-control" type="text" ng-model="res.cost_export" readonly>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-xs-1 control-label">Core</label>
+                                    <div class="col-xs-2">
+                                        <input class="form-control" type="text" ng-model="res.core" readonly>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-xs-1 control-label">Weight</label>
+                                    <div class="col-xs-2">
+                                        <input class="form-control" type="text" ng-model="res.weight" readonly>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-xs-1 control-label">Profit %</label>
+                                    <div class="col-xs-2">
+                                        <input class="form-control" type="text" ng-model="res.profit_nonexport" ng-change="computePriceNonExport()">
+                                    </div>
+                                    <div class="col-xs-2">
+                                        <input class="form-control" type="text" ng-model="res.profit_export" ng-change="computePriceExport()">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-xs-1 control-label">Shipping</label>
+                                    <div class="col-xs-2">
+                                        <input class="form-control" type="text" ng-model="res.shipping_nonexport" ng-change="computePriceNonExport()">
+                                    </div>
+                                    <div class="col-xs-2">
+                                        <input class="form-control" type="text" ng-model="res.shipping_export" ng-change="computePriceExport()">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-xs-1 control-label">Sales Price</label>
+                                    <div class="col-xs-2">
+                                        <input class="form-control" type="text" ng-model="res.price_nonexport" ng-change="priceChangedNonExport()">
+                                    </div>
+                                    <div class="col-xs-2">
+                                        <input class="form-control" type="text" ng-model="res.price_export" ng-change="priceChangedExport()">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="col-xs-1"></div>
+                                    <div class="col-xs-4">
+                                        <button ng-show="!res.sku && isKit" class="btn btn-primary" type="button" ng-click="createKit()">Create Kit SKU</button>&nbsp;&nbsp;
+                                        <button class="btn" type="button" ng-click="clear()">Start Over</button>
+                                    </div>
+                                </div>
+                                <div class="form-group" ng-show="res.sku">
+                                    <label class="col-xs-1 control-label">Kit SKU</label>
+                                    <div class="col-xs-2">
+                                        <input class="form-control" type="text" ng-model="res.sku" readonly>
+                                    </div>
+                                </div>
+                            </fieldset>
+                        </form>
+					</div>
+				</div>
+			</div>
+		</article>
+	</div>
+</section>
+
+<script type="text/javascript">
+	pageSetUp();
+
+    function Controller ($scope, $http)
+    {
+        $scope.clear = function()
+        {
+            $scope.calcLabel = 'Calculate';
+            $scope.isKit = false;
+            $scope.noCalc = true;
+            $scope.images = [];
+            $scope.components = [
+                {
+                    mpn: '',
+                    qty: 1,
+                    image: null,
+                    supplier: null,
+                    cost_nonexport: 0,
+                    cost_export: 0,
+                    core: 0,
+                    weight: 0
+                }
+            ];
+
+            $scope.res = {
+                supplier: null,
+                cost_nonexport: 0,
+                cost_export: 0,
+                core: 0,
+                weight: 0,
+                shipping_nonexport: 0,
+                shipping_export: 0,
+                profit_nonexport: 0,
+                profit_export: 0,
+                price_nonexport: 0,
+                price_export: 0
+            };
+        };
+
+        $scope.clear();
+
+        $scope.deleteComponent = function(index)
+        {
+            $scope.components.splice(index, 1);
+            $scope.updateImages();
+        };
+
+        $scope.computePriceNonExport = function()
+        {
+            var markup = (parseFloat($scope.res.profit_nonexport || 0) * $scope.res.cost_nonexport / 100);
+            $scope.res.price_nonexport = ((markup + $scope.res.cost_nonexport + $scope.res.core + parseFloat($scope.res.shipping_nonexport || 0)) / 0.93).toFixed(2);
+        };
+
+        $scope.priceChangedNonExport = function()
+        {
+            if ($scope.res.cost_nonexport != 0)
+            {
+                $scope.res.profit_nonexport = (100 * (0.93 * parseFloat($scope.res.price_nonexport || 0) - $scope.res.cost_nonexport - $scope.res.core - parseFloat($scope.res.shipping_nonexport || 0)) / $scope.res.cost_nonexport).toFixed(2);
+            }
+        };
+
+        $scope.computePriceExport = function()
+        {
+            var markup = (parseFloat($scope.res.profit_export || 0) * $scope.res.cost_export / 100);
+            $scope.res.price_export = ((markup + $scope.res.cost_export + $scope.res.core + parseFloat($scope.res.shipping_export || 0)) / 0.93).toFixed(2);
+        };
+
+        $scope.priceChangedExport = function()
+        {
+            if ($scope.res.cost_export != 0)
+            {
+                $scope.res.profit_export = (100 * (0.93 * parseFloat($scope.res.price_export || 0) - $scope.res.cost_export - $scope.res.core - parseFloat($scope.res.shipping_export || 0)) / $scope.res.cost_export).toFixed(2);
+            }
+        };
+
+        $scope.calc = function()
+        {
+            $scope.noCalc = true;
+
+            $scope.res = {
+                supplier: null,
+                cost_nonexport: 0,
+                cost_export: 0,
+                core: 0,
+                weight: 0,
+                shipping_nonexport: 0,
+                shipping_export: 0,
+                profit_nonexport: 0,
+                profit_export: 0,
+                price_nonexport: 0,
+                price_export: 0
+            };
+
+            $scope.calcLabel = 'Calculating...';
+
+            $http.put('/api/products/calc', {components: $scope.components})
+                .success(function (data)
+                {
+                    $scope.calcLabel = 'Calculate';
+                    $scope.noCalc = false;
+                    $scope.res = data;
+                    $scope.computePriceNonExport();
+                    $scope.computePriceExport();
+                }).error(function (data)
+                {
+                    $scope.calcLabel = 'Calculate';
+                    $scope.noCalc = false;
+                    $scope.$popError('Error while calculating prices');
+                });
+        };
+
+        $scope.createKit = function()
+        {
+            var comp = [];
+
+            angular.forEach($scope.components, function(c)
+            {
+                comp.push({sku: c.mpn, pivot: {quantity: c.qty}});
+            });
+
+            $http.put('/api/products/kits/0', {name: '-', components: comp})
+                    .success(function (data)
+                    {
+                        $scope.res.sku = data.sku;
+                    }).error(function ()
+                    {
+                        $scope.res.sku = '';
+                        $scope.$popError('Error while creating kit');
+                    });
+        };
+
+        $scope.mpnChanged = function(component)
+        {
+            if ($scope.components[$scope.components.length - 1].mpn.length > 0)
+            {
+                $scope.components.push({mpn: '', qty: 1, image: null});
+            }
+
+            if (!component.mpn || !component.mpn.length)
+            {
+                $scope.noCalc = false;
+                component.desc = '';
+                $scope.updateImage(component);
+                return;
+            }
+
+            component.mpn = component.mpn.toUpperCase().trim();
+
+            $scope.noCalc = true;
+
+            if (component.mpn.indexOf('EDP') === 0) {
+                $http.get('/api/products/dedupe/' + component.mpn)
+                        .success(function (data)
+                        {
+                            if (data['mpn']) {
+                                component.mpn = data['mpn'];
+                                $scope.noCalc = false;
+                                $scope.mpnChanged(component);
+                            }
+                            else {
+                                $scope.noCalc = true;
+                                component.desc = '';
+                                component.image = null;
+                                $scope.$popError('Unable to find MPN');
+                            }
+                        })
+                        .error(function (data)
+                        {
+                            $scope.noCalc = true;
+                            component.desc = '';
+                            component.image = null;
+                            $scope.$popError('Unable to find MPN');
+                        });
+
+                return;
+            }
+            else if (component.mpn.indexOf('EK') === 0) {
+                $http.get('/api/products/expand_kit/' + component.mpn)
+                        .success(function (data)
+                        {
+                            if (data.length > 0) {
+                                $scope.components = [];
+
+                                for (var i = 0; i < data.length; i++) {
+                                    var comp = {
+                                        mpn: data[i].sku,
+                                        qty: data[i].quantity
+                                    };
+                                    $scope.components.push(comp);
+                                }
+
+                                for (var i = 0; i < $scope.components.length; i++) {
+                                    $scope.mpnChanged($scope.components[i]);
+                                }
+                                $scope.noCalc = false;
+                            }
+                            else {
+                                $scope.noCalc = true;
+                                component.desc = '';
+                                component.image = null;
+                                $scope.$popError('Unable to find MPN');
+                            }
+                        })
+                        .error(function (data)
+                        {
+                            $scope.noCalc = true;
+                            component.desc = '';
+                            component.image = null;
+                            $scope.$popError('Unable to find MPN');
+                        });
+
+                return;
+            }
+
+            if (component.mpn.indexOf('.') >= 0) component.supplier = 'ssf';
+            else component.supplier = 'imc';
+
+            component.desc = 'Searching...';
+
+            $http.get('/api/proxy/' + component.supplier + '_ajax/' + component.mpn)
+                    .success(function (data)
+                    {
+                        if (data['brand'] && data['brand'].length > 0)
+                        {
+                            component.desc = data['brand'] + ' ' + data['desc'];
+                            component.cost_nonexport = parseFloat(data['price']) || 0;
+                            if (component.supplier != 'imc')
+                            {
+                                component.cost_export = component.cost_nonexport;
+                                $scope.noCalc = false;
+                            }
+                            else
+                            {
+                                if (data['mpn']) component.mpn = data['mpn'];
+
+                                $http.get('/api/products/export_price/' + component.mpn)
+                                        .success(function (data) {
+                                            component.cost_export = parseFloat(data);
+                                            if (component.cost_nonexport) $scope.noCalc = false;
+                                        })
+                                        .error(function () {
+                                            component.cost_export = 0;
+                                            $scope.$popError('Unable to extract warehouse price');
+                                        });
+                            }
+                            component.core = parseFloat(data['core']) || 0;
+                            component.weight = parseFloat(data['weight']) || 0;
+                            $scope.updateImage(component);
+                        }
+                        else
+                        {
+                            $scope.noCalc = true;
+                            component.desc = 'Invalid MPN';
+                            component.image = null;
+                        }
+                    })
+                    .error(function (data)
+                    {
+                        $scope.noCalc = true;
+                        component.desc = '';
+                        component.image = null;
+                        $scope.$popError('Unable to find MPN');
+                    });
+        };
+
+        $scope.updateImage = function(component)
+        {
+            if (component.mpn && component.mpn.length > 0 && component.qty && component.desc && component.desc.length > '' && component.desc != 'Invalid MPN')
+                component.image = 'http://catalog.eocenterprise.com/img/' + component.mpn.replace('-', '') + '/tneb-qt' + component.qty;
+            else component.image = null;
+
+            var totalQty = 0;
+
+            angular.forEach($scope.components, function(c)
+            {
+                totalQty += (c.qty || 0);
+            });
+
+            $scope.isKit = (totalQty > 1);
+        };
+    }
+</script>

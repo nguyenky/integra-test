@@ -1,0 +1,150 @@
+<section id="widget-grid" data-ng-controller="Controller">
+    <div class="row">
+        <article class="col-xs-6">
+            <div class="jarviswidget jarviswidget-color-teal">
+                <header>
+                    <span class="widget-icon"> <i class="fa fa-lock"></i> </span>
+                    <h2>Suspend Listing</h2>
+                </header>
+                <div>
+                    <div class="widget-body">
+                        <form class="form-horizontal">
+                            <div class="form-group">
+                                <div class="col-xs-6">
+                                    <input class="form-control" type="text" ng-model="itemId" placeholder="Enter Item ID">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-xs-6">
+                                    <input class="form-control" type="text" ng-model="reason" placeholder="Reason for suspension">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-xs-6">
+                                    <button class="btn btn-danger" type="button" ng-click="suspend(itemId, reason)" ng-disabled="!itemId.length || !reason.length">
+                                        <i class="fa fa-lock"></i> Suspend
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </article>
+    </div>
+    <div class="row" ng-show="items && items.length > 0">
+        <article class="col-xs-12">
+            <div class="jarviswidget jarviswidget-color-teal">
+                <header>
+                    <span class="widget-icon"> <i class="fa fa-lock"></i> </span>
+                    <h2>Previously Suspended Listings</h2>
+                </header>
+                <div>
+                    <div class="widget-body">
+                        <table class="table table-responsive table-condensed table-bordered">
+                            <thead>
+                            <tr>
+                                <th>Suspended On</th>
+                                <th>Item ID</th>
+                                <th>Suspended By</th>
+                                <th>Reason</th>
+                                <th>Resumed On</th>
+                                <th>Action</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr ng-repeat="i in items track by i.item_id">
+                                <td class="text-middle">{{i.suspended_on}}</td>
+                                <td class="text-middle">
+                                    <a href="{{getEbayUrl(i.item_id)}}" target="_blank" class="action-link">
+                                        {{i.item_id}}
+                                    </a>
+                                </td>
+                                <td class="text-middle">{{i.suspended_by}}</td>
+                                <td class="wrap text-middle">{{i.suspend_reason}}</td>
+                                <td class="text-middle">
+                                    <span ng-hide="i.suspended">{{i.resumed_on}}</span>
+                                    <span ng-show="i.suspended" class="label label-danger">Suspended</span>
+                                </td>
+                                <td class="text-middle">
+                                    <button class="btn btn-success" type="button" ng-click="resume(i.item_id)" ng-show="i.suspended">
+                                        <i class="fa fa-unlock"></i> Resume
+                                    </button>
+                                    <button class="btn btn-danger" type="button" ng-click="suspend(i.item_id, null)" ng-hide="i.suspended">
+                                        <i class="fa fa-lock"></i> Suspend
+                                    </button>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </article>
+    </div>
+</section>
+
+<script type="text/javascript">
+    pageSetUp();
+
+    function Controller ($scope, $http)
+    {
+        $scope.items = [];
+        $scope.reason = '';
+
+        $scope.suspend = function(itemId, reason)
+        {
+            if (!reason) {
+                reason = prompt('Please enter reason for suspension of this listing.');
+                if (!reason) return;
+            }
+
+            $http.post('/api/ebay/suspend/' + itemId, {reason: reason})
+                    .success(function (data)
+                    {
+                        if (data.ack == 'Success')
+                        {
+                            $scope.$popOk('Listing was successfully suspended');
+                        }
+                        else $scope.$popError('Error while suspending listing', null, data.error);
+
+                        $scope.suspendList();
+                    }).error(function (data)
+                    {
+                        $scope.$popError('Error while suspending listing');
+                    });
+        };
+
+        $scope.resume = function(itemId)
+        {
+            $http.post('/api/ebay/resume/' + itemId)
+                    .success(function (data)
+                    {
+                        $scope.$popOk('Listing has been resumed and will update inventory within 24 hours');
+                        $scope.suspendList();
+                    }).error(function (data)
+                    {
+                        $scope.$popError('Error while resuming listing');
+                    });
+        };
+
+        $scope.suspendList = function()
+        {
+            $http.get('/api/ebay/suspend')
+                    .success(function (data)
+                    {
+                        $scope.items = data;
+                    }).error(function (data)
+                    {
+                        $scope.$popError('Error while loading suspension list');
+                    });
+        };
+
+        $scope.getEbayUrl = function(itemId)
+        {
+            return 'http://www.ebay.com/itm/' + itemId;
+        };
+
+        $scope.suspendList();
+    }
+</script>

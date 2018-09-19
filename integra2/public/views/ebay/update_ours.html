@@ -1,0 +1,27 @@
+<section id="widget-grid">
+
+    <div class="row">
+        <article class="col-xs-12 col-sm-8 col-md-6 col-lg-6">
+            <div class="jarviswidget jarviswidget-color-teal">
+                <header>
+                    <span class="widget-icon"> <i class="glyphicon glyphicon-import"></i> </span>
+                    <h2>Monitor Download</h2>
+                </header>
+                <div>
+                    <div class="widget-body no-padding">
+                        <form class="dropzone" method="post" action="/api/ebay/change_vs_ours" enctype="multipart/form-data">
+                        <label for="file">Upload Updated file</label>
+                        <input type="file" id="file" name="file">
+                        <button type="submit">Confirm</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </article>
+    </div>
+
+</section>
+
+<script type="text/javascript">
+    pageSetUp();
+</script>

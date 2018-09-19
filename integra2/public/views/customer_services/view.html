@@ -1,0 +1,476 @@
+<section id="widget-grid" data-ng-controller="Controller" ng-show="entry">
+    <div class="row">
+        <article class="col-xs-12 col-sm-8 col-md-6">
+            <div class="jarviswidget jarviswidget-color-teal">
+                <header>
+                    <span class="widget-icon"> <i class="fa fa-edit"></i> </span>
+                    <h2>Order Details</h2>
+                   
+                </header>
+                <div>
+                    <div class="widget-body no-padding">
+
+                        <table class="table table-hover">
+                            <tbody>
+                            <tr>
+                                <th>Store</th>
+                                <td>
+                                    {{entry.store}}
+                                    <span ng-show="entry.agent!=entry.store">- {{entry.agent.split('@')[0]}}</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Record Number</th>
+                                <td>
+                                    {{entry.record_num}}
+                                </td>
+                            </tr>
+                            <tr ng-show="entry.parent_order">
+                                <th>Parent Order</th>
+                                <td>
+                                    {{entry.parent_order.split('~')[1]}}
+                                </td>
+                            </tr>
+                            <tr ng-show="entry.sub_orders && entry.sub_orders.length > 0">
+                                <th>Suborders</th>
+                                <td>
+                                    <div data-ng-repeat="s in entry.sub_orders">
+                                        <a class="action-link" ng-click="viewOrder(s.split('~')[0])">{{s.split('~')[1]}}</a>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Order Date</th>
+                                <td>
+                                    {{entry.order_date}}
+                                </td>
+                            </tr>
+                            <tr ng-show="entry.internal_id && entry.record_num != entry.internal_id">
+                                <th>Store Order Number</th>
+                                <td>
+                                    {{entry.internal_id}}
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Customer's Name</th>
+                                <td>
+                                    {{entry.buyer_name.trim()}}
+                                    <div ng-show="entry.buyer_id && (entry.buyer_name.trim() != entry.buyer_id.trim())">
+                                        {{entry.buyer_id.trim()}}
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Email</th>
+                                <td>
+                                    {{entry.email}}&nbsp;
+                                    
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Street</th>
+                                <td>{{entry.street}}</td>
+                            </tr>
+                            <tr>
+                                <th>City</th>
+                                <td>{{entry.city}}</td>
+                            </tr>
+                            <tr>
+                                <th>State</th>
+                                <td>{{entry.state}}</td>
+                            </tr>
+                            <tr>
+                                <th>Country</th>
+                                <td>{{entry.country}}</td>
+                            </tr>
+                            <tr>
+                                <th>Zip</th>
+                                <td>{{entry.zip}}</td>
+                            </tr>
+                            <tr>
+                                <th>Phone</th>
+                                <td>{{entry.phone}}</td>
+                            </tr>
+                            <tr>
+                                <th>Requested Shipping</th>
+                                <td>
+                                    <i class="fa fa-flash" ng-show="entry.speed=='Next Day / Overnight'"></i>
+                                    <i class="fa fa-flash" ng-show="entry.speed=='Second Day'"></i>
+                                    {{entry.speed}}
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Label</th>
+                                <td>
+                                    {{ entry.label_date }}
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Fulfillment</th>
+                                <td>
+                                    <div class="btn-group" dropdown keyboard-nav="true">
+                                       
+                                        <span class="label lonetag" ng-class="getColor(fulfilmentOptions, entry.fulfilment)">{{getLabel(fulfilmentOptions, entry.fulfilment)}}</span>
+                                        <span class="caret"></span>
+                                        
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Status</th>
+                                <td>
+                                    <div class="btn-group" dropdown keyboard-nav="true">
+                                        
+                                        <span class="label lonetag" ng-class="getColor(statusOptions, entry.status)">{{getLabel(statusOptions, entry.status)}}</span>
+                                        <span class="caret"></span>
+                                        
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Tracking</th>
+                                <td>
+                                    <span ng-show="entry.tracking_num">{{entry.tracking_num}} - {{entry.carrier}}</span>
+                                    
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </article>
+
+        <article class="col-xs-12 col-sm-8 col-md-6">
+            <div class="row">
+                <article class="col-xs-12">
+                    <div class="jarviswidget jarviswidget-color-teal">
+                        <header>
+                            <span class="widget-icon"> <i class="fa fa-cubes"></i> </span>
+                            <h2>Shipping Components - {{entry.weight_str}}</h2>
+                            
+                        </header>
+                        <div>
+                            <div class="widget-body">
+                                <div class="ship-components" ng-repeat="component in entry.components">
+                                    <div class="media">
+                                        <img class="pull-left media-object ship-components-tn" alt="{{component.sku}}" src="http://catalog.eocenterprise.com/img/{{component.sku|nodash}}/cl1-tneb"/>
+                                        <div class="media-body">
+                                            <h4 class="media-heading">{{component.qty}}x {{component.sku}}</h4>
+                                            <div class="ship-components-text">{{component.brand}}</div>
+                                            <div class="ship-components-text">{{component.name}}</div>
+                                            <div class="ship-components-text" style="font-weight:bold;">{{component.supplier}}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+            </div>
+
+            <div class="row">
+                <article class="col-xs-12">
+                    <div class="jarviswidget jarviswidget-color-teal">
+                        <header>
+                            <span class="widget-icon"> <i class="fa fa-truck"></i> </span>
+                            <h2>Supplier Orders</h2>
+                            <div class="widget-toolbar" role="menu">
+                                
+                                <i class="fa fa-mail-forward"></i> Direct Ship
+                                
+                            </div>
+                        </header>
+                        <div>
+                            <div class="widget-body no-padding">
+                                <table class="table table-hover">
+                                    <thead>
+                                    <tr>
+                                        <th class="text-center">Warehouse</th>
+                                        <th class="text-center">Order Number</th>
+                                        <th class="text-center">Tracking Number</th>
+                                        <th class="text-center">ETD</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr ng-repeat="source in entry.sources">
+                                        <td class="text-center">{{source.supplier}}</td>
+                                        <td class="text-center">{{source.order_id}}</td>
+                                        <td class="text-center">{{source.tracking_num}}</td>
+                                        <td class="text-center">{{source.etd}}</td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+            </div>
+        </article>
+    </div>
+
+    <div class="row">
+        <article class="col-xs-12">
+            <div class="jarviswidget jarviswidget-color-teal">
+                <header>
+                    <span class="widget-icon"> <i class="fa fa-list"></i> </span>
+                    <h2>Items</h2>
+                </header>
+                <div>
+                    <div class="widget-body no-padding">
+                        <table class="table table-hover">
+                            <thead>
+                            <tr>
+                                <th class="text-center">Quantity</th>
+                                <th>SKU</th>
+                                <th>Description</th>
+                                <th class="text-right">Unit Price</th>
+                                <th class="text-right">Subtotal</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr ng-repeat="item in entry.items">
+                                <td class="text-center">{{item.quantity}}</td>
+                                <td>
+                                    {{item.sku}}
+                                    <div ng-show="item.ebay_item_id">
+                                        <i>eBay: {{item.ebay_item_id}}</i>
+                                    </div>
+                                    <div ng-show="item.amazon_asin">
+                                        <i>Amazon: {{item.amazon_asin}}</i>
+                                    </div>
+                                </td>
+                                <td>{{item.description}}</td>
+                                <td class="text-right">{{item.unit_price | number:2}}</td>
+                                <td class="text-right">{{(item.quantity * item.unit_price) | number:2}}</td>
+                            </tr>
+                            </tbody>
+                            <tfoot>
+                            <tr>
+                                <th colspan="4" class="text-right">Subtotal</td>
+                                <td class="text-right">{{entry.subtotal | number:2}}</td>
+                            </tr>
+                            <tr>
+                                <th colspan="4" class="text-right">Shipping</td>
+                                <td class="text-right">{{entry.shipping | number:2}}</td>
+                            </tr>
+                            <tr class="info">
+                                <th colspan="4" class="text-right">GRAND TOTAL</td>
+                                <th class="text-right">{{entry.total | number:2}}</td>
+                            </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </article>
+    </div>
+
+    <div class="row">
+        <article class="col-xs-12">
+            <div class="jarviswidget jarviswidget-color-teal">
+                <header>
+                    <span class="widget-icon"> <i class="fa fa-pencil-square-o"></i> </span>
+                    <h2>Order History</h2>
+                </header>
+                <div>
+                    <div class="widget-body">
+                        <div ng-show="entry.history && entry.history.length">
+                            <table class="table table-condensed table-bordered table-hover">
+                                <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Entered By</th>
+                                    <th>Remarks</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr ng-repeat="log in entry.history">
+                                    <td>{{log.ts}}</td>
+                                    <td>{{log.email}}</td>
+                                    <td class="wrap"><p ng-bind-html="log.remarks | nl2br"></p></td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        
+                    </div>
+                </div>
+            </div>
+        </article>
+    </div>
+</section>
+
+
+
+
+<script type="text/javascript">
+    //pageSetUp();
+
+    function Controller ($scope, $http, $modal, $location, $routeParams)
+    {
+        $scope.id = $routeParams.id;
+        $scope.entry = null;
+        $scope.showAutoComplete = false;
+
+        $scope.newHist = {
+            remarks: '',
+            show_sales: true,
+            show_data: true,
+            show_pricing: true,
+            show_shipping: true
+        };
+
+
+        $scope.viewOrder = function(id)
+        {
+            $location.path('/orders/view/' + id);
+            return true;
+        };
+
+        $scope.getOrder = function(orderId) {
+            $scope.showAutoComplete = false;
+            $scope.reloadData(orderId);
+        };  
+
+        $scope.reloadData = function(orderId)
+        {
+            $http.get('/api/orders/' + orderId)
+                    .success(function (data) {
+                        $scope.entry = data;
+                        $scope.entry.id = $scope.id;
+                    })
+                    .error(function (data) {
+                        $scope.$popError('Unable to load order details.', data);
+                    });
+        };
+
+        $scope.reloadData($scope.id);
+
+        $scope.reloadHistory = function()
+        {
+            $http.get('/api/orders/history/' + $scope.id)
+                    .success(function (data) {
+                        $scope.entry.history = data;
+                    })
+                    .error(function (data) {
+                        $scope.$popError('Unable to reload order history.', data);
+                    });
+        };
+
+        $scope.fulfilmentOptions = [
+            {
+                id: 0,
+                label: 'Unspecified',
+                color: 'label-danger'
+            },
+            {
+                id: 1,
+                label: 'Direct',
+                color: 'label-success'
+            },
+            {
+                id: 2,
+                label: 'Pickup',
+                color: 'label-warning'
+            },
+            {
+                id: 3,
+                label: 'EOC',
+                color: 'label-primary'
+            }
+        ];
+
+        $scope.emailOptions = [
+            {
+                id: 'email_cant_process',
+                label: 'Order Could Not Be Processed'
+            },
+            {
+                id: 'email_refunded',
+                label: 'Order Has Been Refunded'
+            }
+        ];
+
+       
+        
+        $scope.statusOptions = [
+            {
+                id: 0,
+                label: 'Unspecified',
+                color: 'label-danger'
+            },
+            {
+                id: 1,
+                label: 'Scheduled',
+                color: 'label-info'
+            },
+            {
+                id: 2,
+                label: 'Item Ordered',
+                color: 'label-warning'
+            },
+            {
+                id: 3,
+                label: 'Ready for Dispatch',
+                color: 'label-warning'
+            },
+            {
+                id: 4,
+                label: 'Order Complete',
+                color: 'label-success'
+            },
+            {
+                id: 90,
+                label: 'Cancelled',
+                color: 'label-default'
+            },
+            {
+                id: 91,
+                label: 'Payment Pending',
+                color: 'label-warning'
+            },
+            {
+                id: 92,
+                label: 'Return Pending',
+                color: 'label-warning'
+            },
+            {
+                id: 93,
+                label: 'Return Complete',
+                color: 'label-success'
+            },
+            {
+                id: 94,
+                label: 'Refund Pending',
+                color: 'label-success'
+            },
+            {
+                id: 99,
+                label: 'Error',
+                color: 'label-danger'
+            }
+        ];
+
+        $scope.getColor = function(arr, val)
+        {
+            for (var i = 0; i < arr.length; i++)
+            {
+                if (arr[i].id == val) return arr[i].color;
+            }
+        };
+
+        $scope.getLabel = function(arr, val)
+        {
+            for (var i = 0; i < arr.length; i++)
+            {
+                if (arr[i].id == val) return arr[i].label;
+            }
+        };
+
+       
+    }
+
+  
+</script>

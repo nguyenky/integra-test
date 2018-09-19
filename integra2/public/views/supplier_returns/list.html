@@ -1,0 +1,38 @@
+<section id="widget-grid">
+    <div class="row">
+        <article class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+            <div class="jarviswidget jarviswidget-color-teal">
+                <header>
+                    <span class="widget-icon"> <i class="fa fa-mail-reply"></i> </span>
+                    <h2>Returns</h2>
+                </header>
+                <div>
+                    <div class="widget-body no-padding">
+                        <table ng-table="tableParams" show-filter="true" class="table table-striped table-hover">
+                            <tbody>
+                            <tr ng-repeat="entry in $data" ng-click="openEntry(entry.id)" class="action-link">
+                                <td data-title="'Request Date'" sortable="'return_date'" filter="{'return_date':'date'}">{{entry.return_date}}</td>
+                                <td data-title="'Warehouse'" class="text-center">{{entry.supplier_id}}</td>
+                                <td data-title="'RA Number'" filter="{'return_num':'text'}">{{entry.return_num}}</td>
+                                <td data-title="'Status'" sortable="'status'" filter="{'status':'select'}" filter-data="returnStatusFilter()" class="text-center">
+                                    <span ng-show="entry.status=='Pending RA'" class="label label-warning">Pending RA</span>
+                                    <span ng-show="entry.status=='Processing'" class="label label-warning">Processing</span>
+                                    <span ng-show="entry.status=='Partial Credit'" class="label label-success">Partial Credit</span>
+                                    <span ng-show="entry.status=='Full Credit'" class="label label-success">Full Credit</span>
+                                </td>
+                                <td data-title="'Credit Date'" sortable="'credit_date'" filter="{'credit_date':'date'}">{{entry.credit_date}}</td>
+                                <td data-title="'Credit Number'">{{entry.credit_num}}</td>
+                                <td data-title="'Total Credited'" class="text-right">{{entry.total_credited}}</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </article>
+    </div>
+</section>
+
+<script type="text/javascript">
+    pageSetUp();
+</script>

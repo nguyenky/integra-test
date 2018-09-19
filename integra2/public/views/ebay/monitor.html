@@ -1,0 +1,124 @@
+<section id="widget-grid">
+    <div class="row">
+        <article class="col-xs-12">
+            <div class="jarviswidget jarviswidget-color-teal">
+                <header>
+                    <span class="widget-icon"> <i class="fa fa-eye"></i> </span>
+                    <h2>eBay Monitor</h2>
+                </header>
+                <div class="widget-body">
+                    <div ng-show="results && results.keywords && results.keywords.length == 0" class="text-center margin-top-20">
+                        No listings are currently being monitored.
+                    </div>
+                    <form class="form-horizontal" ng-show="results && results.keywords && results.keywords.length > 0">
+                        <div class="form-group">
+                            <label class="col-xs-4 control-label">Search Keyword or Item ID:</label>
+                            <div class="col-xs-2">
+                                <input type="text" ng-model="search" class="form-control" />
+                            </div>
+                            <div class="col-xs-1">
+                                <button type="button" class="btn" ng-click="loadPage(curPage, search)">Search</button>
+                            </div>
+                            <label class="col-xs-1 control-label">Page:</label>
+                            <div class="col-xs-2">
+                                <select ng-model="curPage" ng-change="loadPage(curPage, search)" class="form-control">
+                                    <option ng-repeat="i in getNumber(results.pages) track by $index" value="{{$index+1}}">{{$index+1}}</option>
+                                </select>
+                            </div>
+                            <div class="col-xs-1">
+                            </div>
+                        </div>
+                    </form>
+                    <accordion close-others="false">
+                        <accordion-group ng-repeat="kw in results.keywords" is-open="$first" ng-class="{'acc-warn': kw.started_selling, 'acc-danger': kw.changed, 'acc-danger': kw.deleted, 'acc-danger': kw.below_min}" ng-hide="kw.items.length == 0">
+                            <accordion-heading>
+                                <strong>{{kw.keywords}}</strong>
+                                <span class="pull-right">
+                                    <span ng-show="kw.deleted" class="prev-value">&nbsp;&nbsp;&nbsp;&nbsp;deleted</span>
+                                    <span ng-show="kw.below_min" class="prev-value">&nbsp;&nbsp;&nbsp;&nbsp;below minimum</span>
+                                    <span ng-show="kw.changed" class="prev-value">&nbsp;&nbsp;&nbsp;&nbsp;changed</span>
+                                    <span ng-show="kw.started_selling" class="prev-value">&nbsp;&nbsp;&nbsp;&nbsp;started selling</span>
+                                </span>
+                            </accordion-heading>
+                            <div class="row">
+                                <div class="col-xs-12">
+                                    <table class="table">
+                                        <thead>
+                                        <tr>
+                                            <th class="text-center">Item ID</th>
+                                            <th>Title</th>
+                                            <th class="text-center">Price</th>
+                                            <th class="text-center">Qty Sold</th>
+                                            <th class="text-center">Last Updated</th>
+                                            <th class="text-center">Actions</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        <tr ng-repeat="item in kw.items" ng-class="{'bg-warning': item.started_selling, 'bg-danger': ((item.below_min || item.changed || item.deleted) && !item.started_selling)}">
+                                            <td class="text-center">
+                                                <a href="{{item.url}}" target="_blank">{{item.id}}</a>
+                                                <span ng-show="item.deleted">
+                                                    <br/>
+                                                    <span class="prev-value">deleted</span>
+                                                </span>
+                                            </td>
+                                            <td>{{item.cur_title}}
+                                                <span ng-show="item.cur_title != item.prev_title">
+                                                    <br/>
+                                                    was <span class="prev-value">{{item.prev_title}}</span>
+                                                </span>
+                                            </td>
+                                            <td class="text-right">{{item.cur_price}}
+                                                <span ng-show="item.below_min">
+                                                    <br/><span class="prev-value">below minimum</span>
+                                                </span>
+                                                <span ng-show="item.cur_price != item.prev_price">
+                                                    <br/>
+                                                    was <span class="prev-value">{{item.prev_price}}</span>
+                                                </span>
+                                            </td>
+                                            <td class="text-right">{{item.sold_change}} since {{item.days}} days ago
+                                                <span ng-show="item.started_selling">
+                                                    <br/><span class="prev-value">started selling</span>
+                                                </span>
+                                            </td>
+                                            <td class="text-center">{{item.last_scraped}}</td>
+                                            <td class="text-center">
+                                                <button ng-show="item.changed || item.below_min" type="button" class="btn btn-sm btn-success" ng-click="ackmonitor(kw, $index)">Acknowledge</button>
+                                                <button ng-hide="item.changed" type="button" class="btn btn-sm btn-danger" ng-click="unmonitor(kw, $index)">Remove</button>
+                                            </td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </accordion-group>
+                    </accordion>
+                    <form class="form-horizontal" ng-show="results && results.keywords && results.keywords.length > 0">
+                        <div class="form-group">
+                            <label class="col-xs-4 control-label">Search Keyword or Item ID:</label>
+                            <div class="col-xs-2">
+                                <input type="text" ng-model="search" class="form-control" />
+                            </div>
+                            <div class="col-xs-1">
+                                <button type="button" class="btn" ng-click="loadPage(curPage, search)">Search</button>
+                            </div>
+                            <label class="col-xs-1 control-label">Page:</label>
+                            <div class="col-xs-2">
+                                <select ng-model="curPage" ng-change="loadPage(curPage, search)" class="form-control">
+                                    <option ng-repeat="i in getNumber(results.pages) track by $index" value="{{$index+1}}">{{$index+1}}</option>
+                                </select>
+                            </div>
+                            <div class="col-xs-1">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </article>
+    </div>
+</section>
+
+<script type="text/javascript">
+    pageSetUp();
+</script>

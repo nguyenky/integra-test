@@ -1,0 +1,175 @@
+<section id="widget-grid">
+    <div class="row">
+        <article class="col-xs-12 col-sm-10 col-md-6 col-lg-6">
+            <div class="jarviswidget jarviswidget-color-teal">
+                <header>
+                    <span class="widget-icon"> <i class="fa fa-edit"></i> </span>
+                    <h2>Speed Lister</h2>
+                </header>
+                <div>
+                    <div class="widget-body">
+                        <form class="form-horizontal" ng-submit="saveEntry()">
+                            <fieldset>
+                                <div class="form-group">
+                                    <label class="col-xs-2 control-label">Base MPN</label>
+                                    <div class="col-xs-10">
+                                        <input required class="form-control" placeholder="Enter MPN" type="text" ng-enter="queryMpn()" ng-blur="queryMpn()" ng-model="mpn" ng-disabled="submitWait || results.length > 0">
+                                        <p ng-show="partName" class="note">{{partBrand}} {{partName}}</p>
+                                        <p ng-show="qtyRequired" class="note">Recommended Quantities: {{qtyRequired}}</p>
+                                    </div>
+                                </div>
+                            </fieldset>
+                            <fieldset>
+                                <legend>Versions</legend>
+                                <div class="form-group">
+                                    <label class="col-xs-2 control-label"># of Versions</label>
+                                    <div class="col-xs-2">
+                                        <input class="form-control" type="number" min="1" max="100" ng-model="currentNum">
+                                    </div>
+                                    <label class="col-xs-1 control-label">Quantity</label>
+                                    <div class="col-xs-2">
+                                        <input class="form-control" type="number" min="1" max="99" ng-model="currentQty">
+                                    </div>
+                                    <label class="col-xs-1 control-label">Price</label>
+                                    <div class="col-xs-2">
+                                        <input class="form-control" type="number" step="0.01" min="0" ng-model="currentPrice">
+                                    </div>
+                                    <div class="col-xs-2 text-center">
+                                        <button class="btn btn-default" type="button" ng-click="addVersion()" ng-disabled="submitWait || !validMpn || !currentNum || !currentQty || !currentPrice">
+                                            <i class="fa fa-plus"></i>
+                                            <span>Add</span>
+                                        </button>
+                                    </div>
+                                </div>
+                                <ul>
+                                    <li ng-repeat="version in versions">
+                                        {{version.num}} version{{(version.num > 1 ? 's' : '')}} of {{version.qty}} piece{{(version.qty > 1 ? 's' : '')}} at ${{version.price | number:2}}
+                                        <a class="action-link" ng-click="deleteVersion($index)" title="Delete"><i class="fa fa-trash-o"></i></a>
+                                    </li>
+                                </ul>
+                            </fieldset>
+                            <div class="form-actions">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <button class="btn btn-primary" type="submit" ng-disabled="submitWait || versions.length == 0 || results.length > 0">
+                                            <i class="fa fa-save"></i>
+                                            <span>Submit</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </article>
+    </div>
+
+    <div class="row" ng-show="results && results.length > 0">
+        <article class="col-xs-12">
+            <div class="jarviswidget jarviswidget-color-teal">
+                <header>
+                    <span class="widget-icon"> <i class="fa fa-cubes"></i> </span>
+                    <h2>Speed Lister Results</h2>
+                </header>
+                <div class="no-padding">
+                    <div class="widget-body">
+                        <div class="row" id="kitListerResults">
+                            <div class="col-xs-12">
+                                <accordion close-others="false">
+                                    <accordion-group ng-repeat="version in results" is-open="$first">
+                                        <accordion-heading>
+                                            <strong>${{version.price | number:2}} | {{version.title}}</strong>
+                                            <span class="pull-right">
+                                                <span ng-show="version.item_id" class="bg-success">
+                                                    <strong><i class="fa fa-check"></i> <a target="_blank" ng-click="$event.stopPropagation()" href="{{getEbayUrl(version)}}" class="action-link">LISTED: {{version.item_id}}</a></strong>
+                                                </span>
+                                                <span ng-show="!version.item_id && version.queued == 1" class="bg-warning">
+                                                    <strong><i class="fa fa-spin fa-spinner"></i> LISTING...</strong>
+                                                </span>
+                                                <span ng-show="!version.item_id && version.queued == 2" class="bg-danger">
+                                                    <strong><i class="fa fa-warning"></i> ERROR</strong>&nbsp;&nbsp;
+                                                </span>
+                                                <span ng-show="!version.item_id && version.queued != 1" class="bg-warning">
+                                                    <button ng-click="deleteResult($index); $event.stopPropagation()" class="btn btn-danger" ng-show="!version.item_id"><i class="fa fa-trash-o"></i> Delete</button>&nbsp;&nbsp;&nbsp;
+                                                    <button ng-click="publishResult(version); $event.stopPropagation()" class="btn btn-success" ng-show="!version.item_id"><i class="fa fa-check"></i> Publish!</button>
+                                                </span>
+                                            </span>
+                                        </accordion-heading>
+                                        <div class="row">
+                                            <div class="col-md-2">
+                                                <img ng-src="{{version.picture}}" class="kit-preview">
+                                            </div>
+                                            <div class="col-md-10">
+                                                <form class="form-horizontal">
+                                                    <div class="form-group">
+                                                        <label class="col-xs-1 control-label">Title</label>
+                                                        <div class="col-xs-11">
+                                                            <input class="form-control" type="text" ng-model="version.title">
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label class="col-xs-1 control-label">Description</label>
+                                                        <div class="col-xs-11">
+                                                            <input class="form-control" type="text" ng-model="version.description">
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label class="col-xs-1 control-label">Brand</label>
+                                                        <div class="col-xs-11">
+                                                            <input class="form-control" type="text" ng-model="version.brand" maxlength="65">
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label class="col-xs-1 control-label">Price</label>
+                                                        <div class="col-xs-5">
+                                                            <input class="form-control" type="number" min="0" step="0.01" ng-model="version.price">
+                                                        </div>
+                                                        <label class="col-xs-1 control-label">MPN</label>
+                                                        <div class="col-xs-5">
+                                                            <input class="form-control" type="text" ng-model="version.mpn">
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label class="col-xs-1 control-label">IPN</label>
+                                                        <div class="col-xs-5">
+                                                            <input class="form-control" type="text" ng-model="version.ipn" maxlength="65">
+                                                        </div>
+                                                        <label class="col-xs-1 control-label">OPN</label>
+                                                        <div class="col-xs-5">
+                                                            <input class="form-control" type="text" ng-model="version.opn" maxlength="65">
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label class="col-xs-1 control-label">Surface</label>
+                                                        <div class="col-xs-5">
+                                                            <input class="form-control" type="text" ng-model="version.surface" maxlength="65">
+                                                        </div>
+                                                        <label class="col-xs-1 control-label">Placement</label>
+                                                        <div class="col-xs-5">
+                                                            <input class="form-control" type="text" ng-model="version.placement" maxlength="65">
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label class="col-xs-1 control-label">Notes</label>
+                                                        <div class="col-xs-11">
+                                                            <textarea rows="8" class="form-control" ng-model="version.notes"></textarea>
+                                                        </div>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </accordion-group>
+                                </accordion>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </article>
+    </div>
+</section>
+
+<script type="text/javascript">
+    pageSetUp();
+</script>

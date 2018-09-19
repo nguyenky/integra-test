@@ -1,0 +1,14 @@
+error_log
+/.idea
+/integra1/system/upload_handler/files
+/integra1/datagrid/tmp/export.*
+/integra2/app/storage/*
+/integra2/app/config/database.php
+/integra2/public/downloads/*
+/integra2/public/ra_doc/*
+/integra2/app/config/app.php
+/integra2/config/8
+/integra1/logs/*
+/integra1/.DS_Store
+/integra2/composer.lock
+/db-restore

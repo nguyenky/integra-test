@@ -1,0 +1,89 @@
+<section id="widget-grid">
+    <div class="row">
+        <article class="col-xs-12">
+            <div class="jarviswidget jarviswidget-color-teal">
+                <header>
+                    <span class="widget-icon"> <i class="fa fa-cubes"></i> </span>
+                    <h2>Kit Hunter Results</h2>
+                    <ul class="nav nav-tabs pull-right in" id="kitHunterTabs">
+                        <li ng-class="{'active':$first}" ng-repeat="s in results.suppliers">
+                            <a data-toggle="tab" href="#s{{s.id}}">Warehouse {{s.id}}</a>
+                        </li>
+                    </ul>
+                </header>
+                <div class="no-padding">
+                    <div class="widget-body">
+                        <div id="kitHunterTabsContent" class="tab-content">
+                            <div class="tab-pane fade active in padding-10 no-padding-bottom" id="s{{s.id}}" ng-repeat="s in results.suppliers">
+                                <div class="row">
+                                    <div class="col-xs-12">
+                                        <accordion close-others="false">
+                                            <accordion-group ng-repeat="kit in s.kits" is-open="$first">
+                                                <accordion-heading>
+                                                    <strong>${{kit.ebay_price | number:2}} | {{kit.sku}} | {{kit.name}}</strong>
+                                                    <span class="pull-right">
+                                                        <span ng-show="kit.ebay_id" class="bg-success">
+                                                            <strong><i class="fa fa-check"></i> <a target="_blank" ng-click="$event.stopPropagation()" href="{{kit.url}}" class="action-link">LISTED: {{kit.ebay_id}}</a></strong>
+                                                        </span>
+                                                        <span ng-show="!kit.ebay_id && kit.publish_status == 1" class="bg-warning">
+                                                            <strong><i class="fa fa-clock-o"></i> QUEUED FOR LISTING</strong>
+                                                        </span>
+                                                        <button ng-click="deleteKit(s, $index); $event.stopPropagation()" class="btn btn-danger" ng-show="!kit.ebay_id && kit.publish_status == 0"><i class="fa fa-trash-o"></i> Delete</button>&nbsp;&nbsp;&nbsp;
+                                                        <button ng-click="publishKit(kit); $event.stopPropagation()" class="btn btn-success" ng-show="!kit.ebay_id && kit.publish_status == 0"><i class="fa fa-check"></i> Publish!</button>
+                                                    </span>
+                                                </accordion-heading>
+                                                <div class="row">
+                                                    <div class="col-md-2">
+                                                        <img ng-src="http://catalog.eocenterprise.com/img/kit.php?sku={{kit.sku|nodash}}" class="kit-preview">
+                                                    </div>
+                                                    <div class="col-md-10">
+                                                        <table class="table">
+                                                            <thead>
+                                                            <tr>
+                                                                <th class="text-center">Image</th>
+                                                                <th>MPN</th>
+                                                                <th>Name</th>
+                                                                <th class="text-center">Brand</th>
+                                                                <th class="text-center">Quantity</th>
+                                                            </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                            <tr ng-repeat="component in kit.components">
+                                                                <td class="text-center"><img ng-src="http://catalog.eocenterprise.com/img/{{component.sku|nodash}}/cl1-tneb" class="kit-component-tn"></td>
+                                                                <td>{{component.sku}}</td>
+                                                                <td>{{component.name}}</td>
+                                                                <td class="text-center">{{component.brand}}</td>
+                                                                <td class="text-center">{{component.quantity}}</td>
+                                                            </tr>
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                            </accordion-group>
+                                        </accordion>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <form class="form-horizontal" ng-show="results.suppliers && results.supplier.length > 0">
+                            <div class="form-group">
+                                <label class="col-xs-8 control-label">Page:</label>
+                                <div class="col-xs-2">
+                                    <select ng-model="curPage" ng-change="loadPage(curPage)" class="form-control">
+                                        <option ng-repeat="i in getNumber(results.pages) track by $index" value="{{$index+1}}">{{$index+1}}</option>
+                                    </select>
+                                </div>
+                                <div class="col-xs-2">
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </article>
+    </div>
+</section>
+
+<script type="text/javascript">
+    pageSetUp();
+</script>

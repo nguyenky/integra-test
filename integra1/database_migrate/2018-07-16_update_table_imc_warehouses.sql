@@ -1,0 +1,1 @@
+UPDATE `imc_warehouses` as i SET i.shipfrom= i.shipfrom + 100 WHERE 1

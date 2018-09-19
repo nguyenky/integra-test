@@ -1,0 +1,167 @@
+<section id="widget-grid" data-ng-controller="Controller">
+	<div class="row">
+		<article class="col-xs-12 col-sm-6 col-md-4 col-lg-4">
+			<div class="jarviswidget jarviswidget-color-teal">
+				<header>
+					<span class="widget-icon"><i class="fa fa-calendar"></i></span>
+					<h2>New SKU Weekly Sales Report</h2>
+				</header>
+				<div>
+					<div class="widget-body">
+                        <form>
+                            <div class="form-group">
+                                <label>Store</label>
+                                <select class="form-control" ng-model="newReport.store">
+                                    <option ng-repeat="s in stores" value="{{s.code}}">{{s.name}}</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>From Date</label>
+                                <input class="form-control datepicker" type="text" ng-model="newReport.start"/>
+                            </div>
+                            <div class="form-group">
+                                <label>To Date</label>
+                                <input class="form-control datepicker" type="text" ng-model="newReport.end"/>
+                            </div>
+                            <button type="submit" class="btn btn-primary" ng-click="queue()" ng-disabled="!newReport.start || !newReport.end || !newReport.store">Queue</button>
+                        </form>
+					</div>
+				</div>
+			</div>
+		</article>
+	</div>
+
+    <div class="row" ng-show="reports && reports.length > 0">
+        <article class="col-xs-12">
+            <div class="jarviswidget jarviswidget-color-teal">
+                <header>
+                    <span class="widget-icon"> <i class="fa fa-calendar"></i> </span>
+                    <h2>Download Report</h2>
+                </header>
+                <div>
+                    <div class="widget-body">
+                        <table class="table table-responsive table-condensed table-bordered">
+                            <thead>
+                            <tr>
+                                <th>Queued By</th>
+                                <th>From Date</th>
+                                <th>To Date</th>
+                                <th>Store</th>
+                                <th>Status</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr ng-repeat="r in reports">
+                                <td class="text-middle">{{r.email}}</td>
+                                <td class="text-middle">{{r.start_date}}</td>
+                                <td class="text-middle">{{r.end_date}}</td>
+                                <td class="text-middle">{{r.store}}</td>
+                                <td class="text-middle">
+                                    <span ng-show="r.status==0">Queued</span>
+                                    <span ng-show="r.status==1">Processing ({{r.progress}}%)</span>
+                                    <span ng-show="r.status==2">
+                                        <a href="{{getUrl(r.output_file)}}" target="_blank" class="action-link">
+                                            Ready to Download
+                                        </a>
+                                    </span>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </article>
+    </div>
+</section>
+
+<script type="text/javascript">
+    pageSetUp();
+
+    function Controller ($scope, $http)
+    {
+        $scope.stores =
+            [
+                {code: 'eBay', name: 'eBay'},
+                {code: 'Amazon', name: 'Amazon'},
+                {code: 'qeautoparts', name: 'Q&E Auto Parts'},
+                {code: 'need4autoparts', name: 'Need 4 Auto Parts'},
+                {code: 'eocparts', name: 'EOC Parts'},
+                {code: 'europortparts', name: 'Euro Port Parts'},
+                {code: 'b2cautoparts', name: 'B2C Auto Parts'},
+                {code: 'iapaustralia', name: 'International Auto Parts Australia'},
+                {code: 'iapcanada', name: 'International Auto Parts Canada'},
+                {code: 'iapunitedkingdom', name: 'International Auto Parts UK'},
+                {code: 'iapfrance', name: 'International Auto Parts France'},
+                {code: 'iapbelgique', name: 'International Auto Parts Belgique'},
+                {code: 'iapbrazil', name: 'International Auto Parts Brazil'},
+                {code: 'iapdanmark', name: 'International Auto Parts Danmark'},
+                {code: 'iapdeutschland', name: 'International Auto Parts Deutschland'},
+                {code: 'iapitalia', name: 'International Auto Parts Italia'},
+                {code: 'iapnederland', name: 'International Auto Parts Nederland'},
+                {code: 'iapsverige', name: 'International Auto Parts Sverige'},
+                {code: 'iapswitzerland', name: 'International Auto Parts Switzerland'},
+                {code: 'iapespana', name: 'International Auto Parts España'},
+                {code: 'iaposterreich', name: 'International Auto Parts Österreich'}
+            ];
+
+        $scope.reports = [];
+        $scope.newReport = {
+            start: null,
+            end: null,
+            store: $scope.stores[0]
+        };
+
+        $scope.queue = function()
+        {
+            $scope.newReport.start = $scope.convertDate($scope.newReport.start);
+            $scope.newReport.end = $scope.convertDate($scope.newReport.end);
+
+            if ($scope.newReport.start > $scope.newReport.end) {
+                alert('To date must come after From date');
+                return;
+            }
+
+            $http.post('/api/reports/sku_weekly', $scope.newReport)
+                    .success(function (data)
+                    {
+                        $scope.$popOk('Report was successfully queued.');
+                        $scope.reloadReports();
+                    }).error(function (data)
+                    {
+                        $scope.$popError('Error while queueing report');
+                    });
+        };
+
+        $scope.reloadReports = function()
+        {
+            $http.get('/api/reports/sku_weekly')
+                    .success(function (data)
+                    {
+                        $scope.reports = data;
+                    }).error(function (data)
+                    {
+                        $scope.$popError('Error while loading reports');
+                    });
+        };
+
+        $scope.reloadReports();
+
+        $scope.convertDate = function(str) {
+            var tmp = str.split('.');
+            if (tmp.length == 3) {
+                var dd = tmp[0];
+                var mm = tmp[1];
+                var yyyy = tmp[2];
+
+                return yyyy + '-' + mm + '-' + dd;
+            }
+
+            return '';
+        };
+
+        $scope.getUrl = function(u) {
+            return '/downloads/' + u;
+        }
+    }
+</script>

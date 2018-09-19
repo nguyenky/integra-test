@@ -1,0 +1,118 @@
+<section id="widget-grid">
+    <div class="row">
+        <article class="col-xs-12">
+            <div class="jarviswidget jarviswidget-color-teal">
+                <header>
+                    <span class="widget-icon"> <i class="fa fa-edit"></i> </span>
+                    <h2>Create Invoice</h2>
+                </header>
+                <div>
+                    <div class="widget-body">
+                        <form class="form-horizontal" ng-submit="saveEntry(newEntry)">
+                            <fieldset>
+                                <div class="form-group">
+                                    <label class="col-xs-2 control-label">E-mail Address</label>
+                                    <div class="col-xs-4">
+                                        <input class="form-control" type="email" maxlength="260" ng-model="newEntry.email" placeholder="Invoice will be sent to this e-mail" ng-disabled="loading">
+                                    </div>
+                                    <label class="col-xs-2 control-label">Store</label>
+                                    <div class="col-xs-4">
+                                        <select class="form-control" ng-model="newEntry.merchant" ng-required="true" ng-options="m.name for m in merchants" ng-disabled="loading"></select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-xs-2 control-label">Shipping Speed</label>
+                                    <div class="col-xs-4">
+                                        <select class="form-control" ng-model="newEntry.shipping_speed" ng-options="s.title for s in speedOptions" ng-required="true"></select>
+                                    </div>
+                                    <label class="col-xs-2 control-label">Sales Agent</label>
+                                    <div class="col-xs-4">
+                                        <input class="form-control" type="text" maxlength="50" ng-model="newEntry.agent" ng-required="true" placeholder="Agent's email address or store name">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-xs-2 control-label">Remarks</label>
+                                    <div class="col-xs-4">
+                                        <input class="form-control" type="text" ng-model="newEntry.remarks">
+                                    </div>
+                                    <label class="col-xs-2 control-label">Related Order #</label>
+                                    <div class="col-xs-4">
+                                        <input class="form-control" type="text" ng-model="newEntry.related_record_num" placeholder="For refund or exchange, enter order #" ng-blur="findOrder()">
+                                    </div>
+                                </div>
+                            </fieldset>
+                            <fieldset>
+                                <legend>Items</legend>
+                                <div class="form-group">
+                                    <label class="col-xs-2 control-label text-center small-padding">Quantity</label>
+                                    <label class="col-xs-2 control-label text-center small-padding">SKU</label>
+                                    <label class="col-xs-3 control-label text-center small-padding">Description</label>
+                                    <label class="col-xs-2 control-label text-right small-padding">Unit Price</label>
+                                    <label class="col-xs-2 control-label text-right small-padding">Subtotal</label>
+                                    <div class="col-xs-1 text-center small-padding">
+                                        <a ng-click="addItem()" title="Add Item"><i class="fa fa-2x fa-plus"></i></a>
+                                    </div>
+                                </div>
+                                <div class="form-group" ng-repeat="item in newEntry.items">
+                                    <div class="col-xs-2 small-padding">
+                                        <input class="form-control" type="number" ng-model="item.quantity" min="1" ng-required="item.sku" ng-blur="validate()">
+                                    </div>
+                                    <div class="col-xs-2 small-padding">
+                                        <input class="form-control" type="text" ng-model="item.sku" placeholder="SKU without prefix" ng-blur="querySku(item)">
+                                    </div>
+                                    <div class="col-xs-3 small-padding">
+                                        <input class="form-control" type="text" ng-model="item.description" ng-disabled="item.loading">
+                                    </div>
+                                    <div class="col-xs-2 text-right small-padding">
+                                        <input class="form-control text-right" type="number" ng-model="item.unit_price" step="0.01" min="0" ng-required="item.sku" ng-disabled="item.loading" ng-init="item.unit_price = item.unit_price * 1" ng-blur="validate()">
+                                    </div>
+                                    <div class="col-xs-2 text-right small-padding">
+                                        <input class="form-control text-right" type="number" value="{{item.quantity * item.unit_price}}" ng-readonly="true">
+                                    </div>
+                                    <div class="col-xs-1 text-center small-padding">
+                                        <a ng-show="$index" ng-click="deleteItem($index)" title="Delete" ng-disabled="item.loading"><i class="fa fa-2x fa-trash-o"></i></a>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-xs-9 control-label text-right small-padding">Shipping Cost</label>
+                                    <div class="col-xs-2 text-right small-padding">
+                                        <input class="form-control text-right" type="number" ng-model="newEntry.shipping_cost" step="0.01" min="0" ng-blur="validate()" ng-required="true">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-xs-5 control-label text-right small-padding">Misc. Charges / Credits</label>
+                                    <div class="col-xs-4 small-padding">
+                                        <input class="form-control" type="text" ng-model="newEntry.misc_item" placeholder="Description of charges (tax, handling) or credit (refund)" ng-required="newEntry.misc_amount" maxlength="25">
+                                    </div>
+                                    <div class="col-xs-2 text-right small-padding">
+                                        <input class="form-control text-right" type="number" ng-model="newEntry.misc_amount" step="0.01" ng-blur="validate()" ng-required="newEntry.misc_item" placeholder="If refund, use negative">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-xs-9 control-label text-right small-padding">GRAND TOTAL</label>
+                                    <div class="col-xs-2 text-right small-padding">
+                                        <input class="form-control text-right" type="number" ng-model="newEntry.total" ng-readonly="true">
+                                    </div>
+                                </div>
+                            </fieldset>
+                            <div class="form-actions">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <button class="btn btn-primary" type="submit" ng-disabled="submitWait">
+                                            <i class="fa fa-save"></i>
+                                            <span>Submit</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </article>
+    </div>
+</section>
+
+<script type="text/javascript">
+    pageSetUp();
+</script>

@@ -1,0 +1,971 @@
+<section id="widget-grid" data-ng-controller="Controller">
+    <div class="row">
+        <article class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+            <div class="jarviswidget jarviswidget-color-teal">
+                <header>
+                    <span class="widget-icon"> <i class="fa fa-shopping-cart"></i> </span>
+                    <h2>Orders List</h2>
+                    <div class="widget-toolbar" role="menu">
+                        <ul class="pagination pagination-xs">
+                            <li ng-class="{'disabled': curPage == 1}">
+                                <a ng-click="loadPage(1)" href="#"><< First</a>
+                            </li>
+                            <li ng-class="{'disabled': curPage == 1}">
+                                <a ng-click="loadPage(curPage-1)" href="#">< Prev</a>
+                            </li>
+                            <li ng-repeat="pb in pageButtons" ng-class="{'active': (pb == curPage)}">
+                                <a ng-click="loadPage(pb)" href="#">{{pb}}</a>
+                            </li>
+                            <li ng-class="{'disabled': curPage == results.pages}">
+                                <a ng-click="loadPage(curPage+1)" href="#">Next ></a>
+                            </li>
+                            <li ng-class="{'disabled': curPage == results.pages}">
+                                <a ng-click="loadPage(results.pages)" href="#">Last >></a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="widget-toolbar" role="menu">
+                        Items per page:&nbsp;
+                        <select class="text-primary" ng-model="ps" ng-change="search()">
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                            <option value="200">200</option>
+                            <option value="300">300</option>
+                            <option value="400">400</option>
+                            <option value="400">500</option>
+                        </select>
+                    </div>
+                </header>
+                <div>
+                    <div class="widget-body no-padding">
+                        <div class="widget-body-toolbar">
+                            <div class="row">
+                                <div class="col-xs-9 col-sm-5 col-md-5 col-lg-5">
+                                    <div class="input-group">
+                                        <span class="input-group-addon"><i class="fa fa-search"></i></span>
+                                        <input class="form-control" type="text" ng-model="keywords" placeholder="Search Orders" ng-enter="search()"/>
+                                    </div>
+                                </div>
+                                <div class="col-xs-3 col-sm-7 col-md-7 col-lg-7">
+                                    <button class="btn btn-primary" ng-click="search()">
+                                        <i class="fa fa-search"></i> <span class="hidden-mobile">Search</span>
+                                    </button>
+                                    &nbsp;&nbsp;
+                                    <button class="btn btn-success" ng-click="createOrder()">
+                                        <i class="fa fa-plus"></i> Create Order
+                                    </button>
+                                    &nbsp;&nbsp;
+                                    <div class="btn-group" dropdown keyboard-nav="true">
+                                        <button type="button" class="btn btn-warning dropdown-toggle" dropdown-toggle data-toggle="dropdown">
+                                            <i class="fa fa-copy"></i> Bulk Actions
+                                            <span class="caret"></span>
+                                        </button>
+                                        <ul class="dropdown-menu" role="menu">
+                                            <li>
+                                                <a href="#" ng-click="bulkValidate()">
+                                                    <i class="fa fa-fw fa-check-square-o"></i>
+                                                    Validate Orders
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a href="#" ng-click="search(1)">
+                                                    <i class="fa fa-fw fa-download"></i>
+                                                    Download Orders
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                <tr>
+                                    <th></th>
+                                    <th class="text-center">
+                                        Date &nbsp;
+                                        <input class="datepicker-proxy" type="text" jqdatepicker="onSelectFrom" ng-model="from_date" pretext="From:"/>
+                                        <input class="datepicker-proxy" type="text" jqdatepicker="onSelectTo" ng-model="to_date" pretext="To:"/>
+
+                                        <button type="button" ng-class="{'btn-danger': hasDateFilter}" class="btn btn-xs btn-default" ng-click="openFromDate()" title="{{dateRange}}" ng-right-click="clearDateFilter()">
+                                            <i class="fa fa-filter"/>
+                                        </button>
+                                    </th>
+                                    <th class="text-center">
+                                        Record # &nbsp;
+                                        <div class="btn-group" dropdown keyboard-nav="true">
+                                            <button type="button" ng-class="{'btn-danger': isMultiFilterActive(storeFilters)}" class="btn btn-xs btn-default dropdown-toggle" dropdown-toggle data-toggle="dropdown" ng-right-click="clearFilter($event, storeFilters)">
+                                                <i class="fa fa-filter"/>
+                                            </button>
+                                            <ul class="dropdown-menu" role="menu">
+                                                <li ng-repeat="o in storeFilters">
+                                                    <a href="#" ng-click="toggleFilter($event, o)" ng-right-click="onlyFilter($event, o, storeFilters)">
+                                                        <i class="fa fa-fw fa-check pull-right" ng-show="o.include"/>
+                                                        {{o.label}}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </th>
+                                    <th class="text-center">Customer</th>
+                                    <th class="text-center">
+                                        Fulfillment &nbsp;
+                                        <div class="btn-group" dropdown keyboard-nav="true">
+                                            <button type="button" ng-class="{'btn-danger': isMultiFilterActive(fulfilmentFilters)}" class="btn btn-xs btn-default dropdown-toggle" dropdown-toggle data-toggle="dropdown" ng-right-click="clearFilter($event, fulfilmentFilters)">
+                                                <i class="fa fa-filter"/>
+                                            </button>
+                                            <ul class="dropdown-menu" role="menu">
+                                                <li ng-repeat="o in fulfilmentFilters">
+                                                    <a href="#" ng-click="toggleFilter($event, o)" ng-right-click="onlyFilter($event, o, fulfilmentFilters)">
+                                                        <i class="fa fa-fw fa-check pull-right" ng-show="o.include"/>
+                                                        {{o.label}}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </th>
+                                    <th class="text-center">
+                                        Status &nbsp;
+                                        <div class="btn-group" dropdown keyboard-nav="true">
+                                            <button type="button" ng-class="{'btn-danger': isMultiFilterActive(statusFilters)}" class="btn btn-xs btn-default dropdown-toggle" dropdown-toggle data-toggle="dropdown" ng-right-click="clearFilter($event, statusFilters)">
+                                                <i class="fa fa-filter"/>
+                                            </button>
+                                            <ul class="dropdown-menu" role="menu">
+                                                <li ng-repeat="o in statusFilters">
+                                                    <a href="#" ng-click="toggleFilter($event, o)" ng-right-click="onlyFilter($event, o, statusFilters)">
+                                                        <i class="fa fa-fw fa-check pull-right" ng-show="o.include"/>
+                                                        {{o.label}}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </th>
+                                    <th class="text-center">
+                                        Shipping &nbsp;
+                                        <div class="btn-group" dropdown keyboard-nav="true">
+                                            <button type="button" ng-class="{'btn-danger': isMultiFilterActive(speedFilters)}" class="btn btn-xs btn-default dropdown-toggle" dropdown-toggle data-toggle="dropdown" ng-right-click="clearFilter($event, speedFilters)">
+                                                <i class="fa fa-filter"/>
+                                            </button>
+                                            <ul class="dropdown-menu" role="menu">
+                                                <li ng-repeat="o in speedFilters">
+                                                    <a href="#" ng-click="toggleFilter($event, o)" ng-right-click="onlyFilter($event, o, speedFilters)">
+                                                        <i class="fa fa-fw fa-check pull-right" ng-show="o.include"/>
+                                                        {{o.label}}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </th>
+                                    <th class="text-center">Remarks</th>
+                                    <th class="text-center">Total</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr ng-repeat="entry in results.orders">
+                                    <td class="text-right">
+                                        <div class="btn-group" dropdown keyboard-nav="true">
+                                            <button type="button" class="btn btn-sm dropdown-toggle btn-default" dropdown-toggle data-toggle="dropdown">
+                                                <i class="fa fa-bars"></i>
+                                            </button>
+                                            <ul class="dropdown-menu" role="menu">
+                                                <li>
+                                                    <a class="action-link" href="/#/orders/view/{{entry.id}}">
+                                                        <i class="fa fa-fw fa-list-alt"></i>
+                                                        Order Details
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <a href="/orders/order_invoice/{{entry.id}}" target="_blank">
+                                                        <i class="fa fa-fw fa-print"></i>
+                                                        Order Invoice
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <a href="/orders/return_invoice/{{entry.id}}" target="_blank">
+                                                        <i class="fa fa-fw fa-mail-reply"></i>
+                                                        Return Invoice
+                                                    </a>
+                                                </li>
+                                                <li class="divider"></li>
+                                                <li ng-hide="entry.tracking_num || entry.status == 90">
+                                                    <a href="#" ng-click="validate(entry.id)">
+                                                        <i class="fa fa-fw fa-check-square-o"></i>
+                                                        Validate
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <a href="http://integra.eocenterprise.com/ship.php?sales_id={{entry.id}}" target="_blank">
+                                                        <i class="fa fa-fw fa-barcode"></i>
+                                                        Print Shipping Label
+                                                    </a>
+                                                </li>
+                                                <li class="divider"></li>
+                                                <li ng-show="entry.status != 4 && entry.status != 90">
+                                                    <a href="http://integra.eocenterprise.com/direct_shipment.php?sales_id={{entry.id}}" target="_blank">
+                                                        <i class="fa fa-fw fa-truck"></i>
+                                                        Direct Shipment
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <a href="#" ng-click="linkSupplierOrder(entry.id)">
+                                                        <i class="fa fa-fw fa-link"></i>
+                                                        Link Supplier Order
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="nowrap">{{entry.order_date.split(' ')[0]}}</span>
+                                        <br/><span class="nowrap">{{entry.order_date.split(' ')[1]}}</span>
+                                    </td>
+                                    <td class="nowrap">
+                                        <a class="action-link" href="/#/orders/view/{{entry.id}}">{{entry.record_num}}</a>
+                                        <div>
+                                            {{entry.store}}
+                                            <span ng-show="entry.agent!=entry.store">
+                                                / {{entry.agent.split('@')[0]}}
+                                            </span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <a class="action-link" href="/#/orders/view/{{entry.id}}">{{entry.buyer_name.trim()}}</a>
+                                        <div ng-show="entry.buyer_id && (entry.buyer_name.trim() != entry.buyer_id.trim())">
+                                            {{entry.buyer_id.trim()}}
+                                        </div>
+                                    </td>
+                                    <td class="text-center">
+                                        <div class="btn-group" dropdown keyboard-nav="true">
+                                            <button type="button" class="btn btn-sm dropdown-toggle" dropdown-toggle data-toggle="dropdown" ng-class="getColor(fulfilmentOptions, entry.fulfilment)">
+                                                <span class="label lonetag" ng-class="getColor(fulfilmentOptions, entry.fulfilment)">{{getLabel(fulfilmentOptions, entry.fulfilment)}}</span>
+                                                <span class="caret"></span>
+                                            </button>
+                                            <ul class="dropdown-menu" role="menu">
+                                                <li ng-repeat="o in fulfilmentOptions">
+                                                    <a href="#" ng-click="updateFulfilment(entry, o.id)">{{o.label}}</a>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </td>
+                                    <td class="text-center">
+                                        <div class="btn-group" dropdown keyboard-nav="true">
+                                            <button type="button" class="btn btn-sm dropdown-toggle" dropdown-toggle data-toggle="dropdown" ng-class="getColor(statusOptions, entry.status)">
+                                                <span class="label lonetag" ng-class="getColor(statusOptions, entry.status)">{{getLabel(statusOptions, entry.status)}}</span>
+                                                <span class="caret"></span>
+                                            </button>
+                                            <ul class="dropdown-menu" role="menu">
+                                                <li ng-repeat="o in statusOptions">
+                                                    <a href="#" ng-click="updateStatus(entry, o.id)">{{o.label}}</a>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </td>
+                                    <td class="text-center">
+                                        <i class="fa fa-flash" ng-show="entry.speed=='Next Day / Overnight'"></i>
+                                        <i class="fa fa-flash" ng-show="entry.speed=='Second Day'"></i>
+                                        {{entry.speed}}
+                                        <div ng-show="entry.tracking_num.length > 0">
+                                            {{entry.tracking_num}}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <a href="#" ng-click="showHistory(entry)">
+                                            {{entry.last_remarks | characters:35}}
+                                            <i ng-hide="entry.last_remarks" class="fa fa-pencil-square-o"></i>
+                                        </a>
+                                    </td>
+                                    <td class="text-right">
+                                        {{entry.total}}
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </article>
+    </div>
+</section>
+
+<script type="text/ng-template" id="history.html">
+    <div class="modal-header">
+        <h3 class="modal-title">Order History</h3>
+    </div>
+    <div class="modal-body">
+        <div class="table-responsive">
+            <table class="table table-condensed table-bordered table-hover">
+                <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Entered By</th>
+                    <th>Remarks</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr ng-repeat="log in history">
+                    <td>{{log.ts}}</td>
+                    <td>{{log.email}}</td>
+                    <td class="wrap"><p ng-bind-html="log.remarks | nl2br"></p></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <form>
+            <div class="form-group">
+                <textarea id="history_remarks" class="form-control" rows="4" placeholder="Type new history entry here." ng-model="newHist.remarks"></textarea>
+            </div>
+            <div class="text-right">
+                Remark for: &nbsp;
+                <input type="checkbox" ng-model="newHist.show_sales"> Sales &nbsp;
+                <input type="checkbox" ng-model="newHist.show_data"> Data &nbsp;
+                <input type="checkbox" ng-model="newHist.show_pricing"> Pricing &nbsp;
+                <input type="checkbox" ng-model="newHist.show_shipping"> Shipping &nbsp;&nbsp;&nbsp;
+                <button class="btn btn-primary" ng-click="addHistory()">Submit</button>
+            </div>
+        </form>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-default" ng-click="close()">Close</button>
+    </div>
+</script>
+
+<script type="text/ng-template" id="link_supplier_order.html">
+    <div class="modal-header">
+        <h3 class="modal-title">Link Supplier Order</h3>
+    </div>
+    <div class="modal-body">
+        <form>
+            <div class="form-group">
+                <label>Supplier</label>
+                <select id="supplier_id" class="form-control" ng-model="linkData.supplier" ng-required="true">
+                    <option value="1">W1</option>
+                    <option value="2">W2</option>
+                    <option value="3">W3</option>
+                    <option value="4">W4</option>
+                    <option value="5">W5</option>
+                    <option value="6">W6</option>
+                    <option value="7">W7</option>
+                    <option value="8">W8</option>
+                    <option value="9">W9</option>
+                    <option value="10">W10</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Order Number</label>
+                <input type="text" class="form-control" placeholder="Order Number" ng-required="true" ng-model="linkData.supplierOrderId">
+            </div>
+        </form>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-primary" ng-click="linkSupplierOrder()">Link</button>&nbsp;
+        <button class="btn btn-default" ng-click="close()">Cancel</button>
+    </div>
+</script>
+
+<script type="text/javascript">
+    pageSetUp();
+
+    function Controller ($scope, $http, $modal, $location, $window, $timeout)
+    {
+        $scope.ps = 100;
+        $scope.maxPageButtons = 7;
+        $scope.curPage = 1;
+        $scope.pageButtons = [ 1 ];
+        $scope.results = {
+            pages: 1,
+            orders: []
+        };
+
+        $scope.getNumber = function(num)
+        {
+            return new Array(num);
+        };
+
+        $scope.fulfilmentOptions = [
+            {
+                id: 0,
+                label: 'Unspecified',
+                color: 'label-danger'
+            },
+            {
+                id: 1,
+                label: 'Direct',
+                color: 'label-success'
+            },
+            {
+                id: 2,
+                label: 'Pickup',
+                color: 'label-warning'
+            },
+            {
+                id: 3,
+                label: 'EOC',
+                color: 'label-primary'
+            }
+        ];
+
+        $scope.updateFulfilment = function(entry, f)
+        {
+            var prev = entry.fulfilment;
+            entry.fulfilment = f;
+
+            $http.put('/api/orders/fulfilment', {id: entry.id, code: f})
+                    .success(function(data)
+                    {
+                    })
+                    .error(function(data)
+                    {
+                        entry.fulfilment = prev;
+                        $scope.$popError('Unable to change fulfillment for this order.', data);
+                    });
+        };
+
+        $scope.updateStatus = function(entry, f)
+        {
+            var prev = entry.status;
+            entry.status = f;
+
+            $http.put('/api/orders/status', {id: entry.id, code: f})
+                    .success(function(data)
+                    {
+                    })
+                    .error(function(data)
+                    {
+                        entry.status = prev;
+                        $scope.$popError('Unable to change status for this order.', data);
+                    });
+        };
+        
+        $scope.statusOptions = [
+            {
+                id: 0,
+                label: 'Unspecified',
+                color: 'label-danger'
+            },
+            {
+                id: 1,
+                label: 'Scheduled',
+                color: 'label-info'
+            },
+            {
+                id: 2,
+                label: 'Item Ordered',
+                color: 'label-warning'
+            },
+            {
+                id: 3,
+                label: 'Ready for Dispatch',
+                color: 'label-warning'
+            },
+            {
+                id: 4,
+                label: 'Order Complete',
+                color: 'label-success'
+            },
+            {
+                id: 90,
+                label: 'Cancelled',
+                color: 'label-default'
+            },
+            {
+                id: 91,
+                label: 'Payment Pending',
+                color: 'label-warning'
+            },
+            {
+                id: 92,
+                label: 'Return Pending',
+                color: 'label-warning'
+            },
+            {
+                id: 93,
+                label: 'Return Complete',
+                color: 'label-success'
+            },
+            {
+                id: 94,
+                label: 'Refund Pending',
+                color: 'label-success'
+            },
+            {
+                id: 99,
+                label: 'Error',
+                color: 'label-danger'
+            },
+           
+            {id: 103, label: 'Pending Refund 1', color: 'label-success'},
+            {id: 104, label: 'Pending Refund 2', color: 'label-success'},
+            {id: 105, label: 'Pending Refund 3', color: 'label-success'},
+        ];
+        
+        $scope.getColor = function(arr, val)
+        {
+            for (var i = 0; i < arr.length; i++)
+            {
+                if (arr[i].id == val) return arr[i].color;
+            }
+        };
+
+        $scope.getLabel = function(arr, val)
+        {
+            for (var i = 0; i < arr.length; i++)
+            {
+                if (arr[i].id == val) return arr[i].label;
+            }
+        };
+
+        $scope.fulfilmentFilters = [
+            {
+                value: 0,
+                label: 'Unspecified',
+                include: true
+            },
+            {
+                value: 1,
+                label: 'Direct',
+                include: true
+            },
+            {
+                value: 2,
+                label: 'Pickup',
+                include: true
+            },
+            {
+                value: 3,
+                label: 'EOC',
+                include: true
+            }
+        ];
+
+        $scope.statusFilters = [
+            {
+                value: 0,
+                label: 'Unspecified',
+                include: true
+            },
+            {
+                value: 1,
+                label: 'Scheduled',
+                include: true
+            },
+            {
+                value: 2,
+                label: 'Item Ordered',
+                include: true
+            },
+            {
+                value: 3,
+                label: 'Ready for Dispatch',
+                include: true
+            },
+            {
+                value: 4,
+                label: 'Order Complete',
+                include: true
+            },
+            {
+                value: 90,
+                label: 'Cancelled',
+                include: true
+            },
+            {
+                value: 91,
+                label: 'Payment Pending',
+                include: true
+            },
+            {
+                value: 92,
+                label: 'Return Pending',
+                include: true
+            },
+            {
+                value: 93,
+                label: 'Return Complete',
+                include: true
+            },
+            {
+                value: 94,
+                label: 'Refund Pending',
+                include: true
+            },
+            {
+                value: 99,
+                label: 'Error',
+                include: true
+            },
+            {value: 100, label: 'Reshipment', include: true},
+            {value: 101, label: 'Exchange', include: true},
+            {value: 102, label: 'Non-Delivered', include: true},
+            {value: 103, label: 'Pending Refund 1', include: true},
+            {value: 104, label: 'Pending Refund 2', include: true},
+            {value: 105, label: 'Pending Refund 3', include: true},
+        ];
+
+        $scope.storeFilters = [];
+
+        for (var i = 0; i < $window.stores.length; i++)
+            $scope.storeFilters.push({ label: $window.stores[i], include: true});
+
+        $scope.speedFilters = [
+            {
+                label: 'Standard / Ground',
+                include: true
+            },
+            {
+                label: 'Expedited / Express',
+                include: true
+            },
+            {
+                label: 'Next Day / Overnight',
+                include: true
+            },
+            {
+                label: 'Second Day',
+                include: true
+            },
+            {
+                label: 'Local Pick Up',
+                include: true
+            },
+            {
+                label: 'International',
+                include: true
+            },
+            {
+                label: 'ePacket',
+                include: true
+            }
+        ];
+
+        $scope.isMultiFilterActive = function(arr)
+        {
+            for (var i = 0; i < arr.length; i++)
+            {
+                if (!arr[i].include) return true;
+            }
+
+            return false;
+        };
+
+        $scope.toggleFilter = function(event, val)
+        {
+            val.include = !val.include;
+            event.preventDefault();
+            event.stopPropagation();
+        };
+
+        $scope.onlyFilter = function(event, val, arr)
+        {
+            for (var i = 0; i < arr.length; i++)
+            {
+                arr[i].include = false;
+            }
+
+            val.include = true;
+            event.preventDefault();
+            event.stopPropagation();
+        };
+
+        $scope.clearFilter = function(event, arr)
+        {
+            for (var i = 0; i < arr.length; i++)
+            {
+                arr[i].include = true;
+            }
+
+            event.preventDefault();
+            event.stopPropagation();
+        };
+
+        $scope.createOrder = function()
+        {
+            $location.path('/orders/create');
+        };
+
+        $scope.search = function(download)
+        {
+            var action = 'search';
+            if (download) action = 'download_list';
+
+            $http.post('/api/orders/' + action,
+                    {
+                        keywords: $scope.keywords,
+                        dateFilters: $scope.dateFilters,
+                        storeFilters: $scope.storeFilters,
+                        fulfilmentFilters: $scope.fulfilmentFilters,
+                        statusFilters: $scope.statusFilters,
+                        speedFilters: $scope.speedFilters,
+                        page: $scope.curPage,
+                        ps: $scope.ps
+                    })
+                    .success(function (data) {
+                        if (download)
+                        {
+                            $window.open('/downloads/' + data);
+                            return;
+                        }
+
+                        $scope.results = data;
+
+                        var pageButtons = [];
+
+                        if ($scope.curPage > $scope.results.pages)
+                            $scope.curPage = 1;
+
+                        var i;
+
+                        for (i = (($scope.maxPageButtons - 1) / 2); i > 0; i--)
+                        {
+                            var t = $scope.curPage - i;
+                            if (t > 0) pageButtons.push($scope.curPage - i);
+                        }
+
+                        pageButtons.push($scope.curPage);
+
+                        for (i = 0; i < (($scope.maxPageButtons - 1) / 2); i++)
+                        {
+                            if ($scope.curPage + (i + 1) <= $scope.results.pages)
+                                pageButtons.push($scope.curPage + i + 1);
+                        }
+
+                        $scope.pageButtons = pageButtons;
+                    });
+        };
+        
+        $scope.loadPage = function(page)
+        {
+            if (page > $scope.results.pages) return;
+            if (page == $scope.curPage) return;
+
+            $scope.curPage = page;
+            $scope.search();
+        };
+
+        $scope.showHistory = function(order)
+        {
+            $http.get('/api/orders/history/' + order.id).success(function(data)
+            {
+                var instance = $modal.open(
+                    {
+                        animation: false,
+                        templateUrl: 'history.html',
+                        controller: 'HistoryController',
+                        size: 'md',
+                        resolve: {
+                            history: function ()
+                            {
+                                return data;
+                            },
+                            orderId: function ()
+                            {
+                                return order.id;
+                            }
+                        }
+                    });
+
+                instance.opened.then(function()
+                {
+                    $scope.$focus('history_remarks');
+                });
+
+                instance.result.then(function (remarks)
+                {
+                    order.last_remarks = remarks;
+                });
+            });
+        };
+
+        $scope.linkSupplierOrder = function(id)
+        {
+            var instance = $modal.open(
+                    {
+                        animation: false,
+                        templateUrl: 'link_supplier_order.html',
+                        controller: 'LinkSupplierOrderController',
+                        size: 'sm',
+                        resolve: {
+                            salesId: function ()
+                            {
+                                return id;
+                            }
+                        }
+                    });
+
+            instance.opened.then(function()
+            {
+                $scope.$focus('supplier_id');
+            });
+        };
+
+        $scope.dateFilters = {
+            from: null,
+            to: null
+        };
+
+        $scope.openFromDate = function()
+        {
+            $scope.dateFilters.from = null;
+            $scope.dateFilters.to = null;
+            $scope.hasDateFilter = false;
+            $scope.dateRange = '';
+
+            $('input[ng-model="from_date"]').datepicker('show');
+        };
+
+        $scope.onSelectFrom = function(date)
+        {
+            if (!date)
+            {
+                $scope.clearDateFilter();
+                return;
+            }
+
+            $scope.dateFilters.from = date;
+            $timeout(function() {
+                $('input[ng-model="to_date"]').datepicker('show');
+            }, 500);
+        };
+
+        $scope.onSelectTo = function(date)
+        {
+            if (!date)
+            {
+                $scope.clearDateFilter();
+                return;
+            }
+
+            $scope.dateFilters.to = date;
+            $scope.hasDateFilter = true;
+            $scope.dateRange = $scope.dateFilters.from + ' to ' + $scope.dateFilters.to;
+        };
+
+        $scope.clearDateFilter = function()
+        {
+            $scope.dateFilters.from = null;
+            $scope.dateFilters.to = null;
+            $scope.hasDateFilter = false;
+            $scope.dateRange = '';
+        };
+
+        $scope.clearDateFilter();
+
+        $scope.validate = function(salesId)
+        {
+            $http.post('/api/orders/validate', {id: salesId})
+                .success(function(data)
+                {
+                    if (!data || data.skip) return;
+
+                    for (var j = 0; j < $scope.results.orders.length; j++)
+                    {
+                        if ($scope.results.orders[j].id == data.id)
+                        {
+                            $scope.results.orders[j].status = data.status;
+                            $scope.results.orders[j].tracking_num = data.tracking_num;
+                            $scope.results.orders[j].carrier = data.carrier;
+                            return;
+                        }
+                    }
+
+                    console.log('Orphan result:');
+                    console.log(data);
+                })
+                .error(function(data)
+                {
+                    $scope.$popError('Unable to validate order.');
+                });
+        };
+
+        $scope.bulkValidate = function()
+        {
+            for (var i = 0; i < $scope.results.orders.length; i++)
+            {
+                if ($scope.results.orders[i].status == 4
+                || $scope.results.orders[i].status == 90
+                || $scope.results.orders[i].fulfilment != 3
+                || $scope.results.orders[i].tracking_num.length > 0)
+                    continue;
+
+                $scope.validate($scope.results.orders[i].id);
+            }
+        };
+
+        $scope.search();
+    }
+
+    function HistoryController($scope, $modalInstance, $http, history, orderId)
+    {
+        $scope.orderId = orderId;
+        $scope.history = history;
+        $scope.newHist = {
+            remarks: '',
+            show_sales: true,
+            show_data: true,
+            show_pricing: true,
+            show_shipping: true
+        };
+
+        $scope.close = function()
+        {
+            $modalInstance.close(($scope.history && $scope.history.length > 0) ? $scope.history[$scope.history.length-1].remarks : '');
+        };
+
+        $scope.addHistory = function()
+        {
+            $scope.newHist.remarks = $scope.newHist.remarks.trim();
+
+            if (!$scope.newHist.remarks || $scope.newHist.remarks.length == 0)
+            {
+                alert('Please type a remark.');
+                return;
+            }
+
+            if (!$scope.newHist.show_sales && !$scope.newHist.show_data && !$scope.newHist.show_pricing && !$scope.newHist.show_shipping)
+            {
+                alert('Please select which department the remark is for.');
+                return;
+            }
+
+            $http.post('/api/orders/history/' + $scope.orderId, $scope.newHist).success(function(data)
+            {
+                $scope.history.push(data);
+                $scope.newHist.remarks = '';
+            }).error(function (data) {
+                $scope.$popError('Unable to submit new history entry');
+            });
+        };
+    }
+
+    function LinkSupplierOrderController($scope, $modalInstance, $http, salesId)
+    {
+        $scope.linkData = {
+            salesId: salesId,
+            supplierOrderId: null,
+            supplier: null
+        };
+
+        $scope.linkSupplierOrder = function()
+        {
+            $http.put('/api/orders/link_supplier_order', $scope.linkData)
+                    .success(function (data) {
+                        if (data == '1') {
+                            $scope.$popOk('Order successfully linked');
+                            $modalInstance.dismiss('cancel');
+                        }
+                        else $scope.$popError('Unable to link order');
+                    })
+                    .error(function (data) {
+                        $scope.$popError('Unable to link order');
+                    });
+        };
+
+        $scope.close = function()
+        {
+            $modalInstance.dismiss('cancel');
+        };
+    }
+</script>

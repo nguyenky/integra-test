@@ -1,0 +1,141 @@
+<section id="widget-grid">
+    <div class="row">
+        <article class="col-xs-12">
+            <div class="jarviswidget jarviswidget-color-teal" ng-show="!loading">
+                <header>
+                    <span class="widget-icon"> <i class="fa fa-search"></i> </span>
+                    <h2>Quick Lookup</h2>
+                </header>
+                <div>
+                    <div class="widget-body">
+                        <!-- <form class="header-search pull-right">
+                            <input id="search" type="text" ng-model="mpn" placeholder="Search MPN" ng-enter="search()" class="margin-bottom-20">
+                            <button type="button" ng-click="search()" ng-enabled="mpn.length">
+                                <i class="fa fa-search"></i>
+                            </button>
+                        </form> -->
+                        <form ng-submit="search()">
+                            <div class="row col-md-12">
+                                <div class="form-group col-md-2">
+                                    <label for="email">Remarks</label>
+                                    <input type="text" ng-model="remarks" class="form-control" id="" >
+                                </div>
+                                <div class="form-group col-md-4">
+                                    <label for="email">Upload file CSV</label>
+                                    <input type="file" file-model="file" class="form-control" id="">
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <label for="pwd">Keyword:</label>
+                                    <input ng-model="mpn" type="text" class="form-control" id="pwd">
+                                </div>
+                            </div>
+                            <div class="row form-group">
+                                <button type="submit" class="btn btn-default quick_look_btn_submit">Search</button>
+                            </div>
+                        </form>
+                        <div class="row">
+                            <table class="table table-condensed">
+                                <tbody ng-repeat="d in data">
+                                <tr>
+                                    <th class="nowrap width-20">Warehouse</th>
+                                    <td class="width-20">W{{d.supplier}}</td>
+                                    <th class="nowrap width-20">Weight (lb)</th>
+                                    <td class="width-20">{{d.weight}}</td>
+                                    <td class="width-20"></td>
+                                </tr>
+                                <tr>
+                                    <th class="nowrap width-20">Part Number</th>
+                                    <td class="width-20">{{d.mpn}}</td>
+                                    <th class="nowrap width-20">Available Stock</th>
+                                    <td class="width-20">{{d.quantity | number:0}}</td>
+                                    <td class="width-20"></td>
+                                </tr>
+                                <tr>
+                                    <th class="nowrap width-20">Other Numbers</th>
+                                    <td class="width-20">{{showAlt(d.alt)}}</td>
+                                    <th class="nowrap width-20">Quantity Required</th>
+                                    <td class="width-20">{{d.qtys}}</td>
+                                    <td class="width-20"></td>
+                                </tr>
+                                <tr>
+                                    <th class="nowrap width-20">Description</th>
+                                    <td class="width-20">{{d.desc}}</td>
+                                    <th class="nowrap width-20">Position</th>
+                                    <td class="width-20">{{d.positions}}</td>
+                                    <td class="width-20"></td>
+                                </tr>
+                                <tr>
+                                    <th class="nowrap width-20">Brand</th>
+                                    <td class="width-20">{{d.brand}}</td>
+                                    <th class="nowrap width-20"></th>
+                                    <td class="width-20"></td>
+                                    <td class="width-20"></td>
+                                </tr>
+                                <tr>
+                                    <th class="nowrap width-20">Image</th>
+                                    <td colspan="4">
+                                        <img class="quick-lookup" ng-src="http://catalog.eocenterprise.com/img/{{d.img_sku|nodash}}/cl1"/>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="row" ng-show="progress.length">
+                            <div class="col-md-8">
+                                <div class="panel panel-default">
+                                    <div class="panel-heading">
+                                        <h3 class="panel-title">Results</h3>
+                                    </div>
+                                    <div class="panel-body body-remarks">
+                                         <table class="table">
+                                            <thead>
+                                              <tr>
+                                                <th>ID</th>
+                                                <th>Remarks</th>
+                                                <th class="text-center">Line Count</th>
+                                                <th class="text-center">Progress</th>
+                                                <th class="text-center">Action</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                              <tr ng-repeat="pro in progress">
+                                                    <td>{{pro.id}}</td>
+                                                    <td>{{pro.name}}</td>
+                                                    <td class="text-center">{{pro.ebay_quick_lookup_pendings}}</td>
+                                                    <td class="text-center">
+                                                        <div class="progress">
+                                                            <div class="progress-bar progress-bar-{{pro.progress == 100 ? 'success' : 'warning progress-bar-striped active' }}" role="progressbar" aria-valuenow="{{pro.progress}}" aria-valuemin="0" aria-valuemax="{{pro.progress}}" style="min-width: 2em; width: {{pro.progress}}%;">
+                                                                {{pro.progress}} %
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td class="text-center no-wrap">
+                                                            
+                                                            <a class="btn btn-success" target="_blank" href="{{pro.links}}" ng-show="pro.progress == 100">Download</a>
+                                                            <a class="btn btn-sm btn-danger" href="" ng-click="deleteLookup(pro.id)">Delete</a>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                          </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    </div>
+                </div>
+            </div>
+            <div class="jarviswidget jarviswidget-color-teal" ng-show="loading">
+                
+                <div class="text-center">
+                    loading...
+                </div>
+            </div>
+        </article>
+    </div>
+</section>
+
+<script type="text/javascript">
+    pageSetUp();
+</script>

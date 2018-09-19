@@ -1,0 +1,557 @@
+.ng-table-group
+{
+    cursor: pointer;
+}
+
+.center-page-container
+{
+    height: 100%;
+    width: 100%;
+}
+
+div.center-page-container
+{
+    display: table;
+    vertical-align: middle;
+}
+
+div.center-page
+{
+    display: table-cell;
+    vertical-align: middle;
+}
+
+div.landing-welcome
+{
+    width: 50%;
+    margin: auto !important;
+}
+
+.landing-welcome h1
+{
+    padding-bottom: 20px !important;
+}
+
+.login-info img
+{
+    border-left: 0 !important;
+}
+
+.sparks-info span
+{
+    text-align: center !important;
+}
+
+#logo-group
+{
+    width: 50% !important;
+}
+
+.bootstrapWizard li.complete .step
+{
+    padding: 7px 13px !important;
+}
+
+.bootstrapWizard li.active .title
+{
+    font-weight: bold !important;
+}
+
+.bootstrapWizard li .step i
+{
+    font-size: 16px !important;
+}
+
+.bootstrapWizard li
+{
+    width: 20% !important;
+}
+
+.progress-graph
+{
+    padding-bottom: 30px !important;
+    border-bottom: 1px dashed rgba(0,0,0,.2) !important;
+}
+
+.row-with-input
+{
+    padding-top: 14px !important;
+}
+
+table.no-empty .dataTables_empty
+{
+    display: none !important;
+}
+
+table.no-empty .datatable_tabletools_info
+{
+    display: none !important;
+}
+
+.dropzone
+{
+    min-height: 200px;
+}
+
+tr.group-parent td
+{
+    background-color: #f9f9f9 !important;
+}
+
+tr.group-parent td a, th.sortable, th.sort-asc, th.sort-desc, .action-link
+{
+    cursor: pointer !important;
+}
+
+tr.group-child td:first-child
+{
+    padding-left: 30px !important;
+}
+
+tfoot tr.group-parent td
+{
+    font-weight: bolder !important;
+    border-top: 1px solid #ddd !important;
+    border-bottom: 1px solid #ddd !important;
+}
+
+th.filter div div div
+{
+    position: relative;
+}
+
+th.filter > div > div > div:before
+{
+    position: absolute;
+    top: 8px;
+    left: 10px;
+    font-family: FontAwesome;
+    content: "\f002";
+    color: #a9a9a9;
+}
+
+input.input-filter, select.filter-select
+{
+    padding-left: 25px !important;
+}
+
+.filter-num, .filter-exp, .filter-date-from, .filter-date-to
+{
+    display: inline !important;
+}
+
+.filter-num
+{
+    width: 80px !important;
+}
+
+.filter-date-from
+{
+    width: 100px !important;
+    padding-left: 25px !important;
+    padding-right: 2px !important;
+}
+
+.filter-date-to
+{
+    width: 75px !important;
+    padding-left: 2px !important;
+    padding-right: 2px !important;
+}
+
+.filter-exp
+{
+    width: 40px !important;
+    padding: 0px 2px !important;
+}
+
+th.header div
+{
+    text-align: center !important;
+}
+
+form.rowform, form.rowform + div, .nowrap
+{
+    white-space: nowrap !important;
+}
+
+th.filter span.nowrap
+{
+    float: left !important;
+}
+
+table.ng-table td
+{
+    vertical-align: middle !important;
+}
+
+div.ng-table-counts, ul.ng-table-pagination
+{
+    margin: 5px !important;
+}
+
+td.resolved-issue
+{
+    background-color: #739E73 !important;
+}
+
+td.open-issue
+{
+    background-color: #C46A69 !important;
+}
+
+.forum-attachment li
+{
+    margin-left: 10px !important;
+}
+
+.participant-list
+{
+    padding-left: 20px !important;
+    line-height: 2.5em !important;
+}
+
+th.participant-list small
+{
+    margin-right: 20px !important;
+}
+
+.margin-left-20
+{
+    margin-left: 20px !important;
+}
+
+.margin-bottom-20
+{
+    margin-bottom: 20px !important;
+}
+
+.nowrap
+{
+    white-space: nowrap !important;
+}
+
+#main-container
+{
+    position: relative;
+}
+
+.loading-overlay {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    background: #000;
+    opacity: 0.8;
+    z-index: 9999;
+    filter: alpha(opacity=80);
+}
+
+.loading-overlay2 {
+    width: 50px;
+    height: 57px;
+    position: absolute;
+    top: 100px;
+    left: 50%;
+    z-index: 9999;
+    margin: -28px 0 0 -25px;
+    color: white;
+}
+
+span#logo
+{
+    width: 100% !important;
+}
+
+#logo img
+{
+    height: 30px !important;
+    width: auto !important;
+}
+
+#login-logo
+{
+    height: 100px !important;
+}
+
+button.ui-select-match
+{
+    padding-right: 30px !important;
+}
+
+.absolute
+{
+    position: absolute !important;
+}
+
+.ui-select-choices-group-label
+{
+    font-size: 13px !important;
+    color: black !important;
+    font-weight: bold !important;
+}
+
+.ui-select-choices-row-inner div
+{
+    padding-left: 10px !important;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button
+{
+    /* display: none; <- Crashes Chrome on hover */
+    -webkit-appearance: none;
+    margin: 0; /* <-- Apparently some margin are still there even though it's hidden */
+}
+
+.margin-right-10
+{
+    margin-right: 10px !important;
+}
+
+.width-120
+{
+    width: 120px !important;
+}
+
+.product-details-image
+{
+    width: 100%;
+    height: 100%;
+}
+
+.small-padding
+{
+    padding-right: 5px !important;
+    padding-left: 5px !important;
+}
+
+h1.picklist-quantity
+{
+    font-size: 40px !important;
+}
+
+tr.map
+{
+    height: 42px !important;
+}
+
+tr.map td
+{
+    width: 60px !important;
+    border-top: none !important;
+}
+
+tr.map td button, .attrib-text
+{
+    width: 100% !important;
+}
+
+img.map-tn
+{
+    width: 80px !important;
+}
+
+img.ship-components-tn
+{
+    width: 120px !important;
+    border: lightgrey solid 1px !important;
+}
+
+div.ship-components
+{
+    float: left !important;
+    margin: 0 10px 10px 0 !important;
+}
+
+div.ship-components-text
+{
+    word-wrap: break-word;
+    width: 170px !important;
+}
+
+#binModal.modal .modal-dialog
+{
+    width: 900px !important;
+}
+
+.short-edit
+{
+    width: 60px !important;
+}
+
+.product-image-item
+{
+    border-style: solid;
+    width: 250px;
+    text-align: center;
+}
+
+img.kit-component-tn
+{
+    height: 50px;
+    text-align: center;
+}
+
+img.kit-preview
+{
+    width: 100% !important;
+    text-align: center;
+}
+
+.margin-left-10
+{
+    margin-left: 10px !important;
+}
+
+.accordion-toggle
+{
+    cursor: pointer !important;
+}
+
+#kitHunterTabsContent h4.panel-title, #kitListerResults h4.panel-title
+{
+    line-height: 2em !important;
+}
+
+#kitListerResults iframe
+{
+    width: 100% !important;
+    height: 500px !important;
+}
+
+.margin-top-20
+{
+    margin-top: 20px !important;
+}
+
+.prev-value
+{
+    font-style: italic !important;
+    font-weight: bold !important;
+    color: red !important;
+}
+
+.acc-danger .panel-heading
+{
+    background-color: #f2dede !important;
+}
+
+.acc-warn .panel-heading
+{
+    background-color: #fcf8e3 !important;
+}
+
+.width-20
+{
+    width: 20% !important;
+}
+
+iframe.preview
+{
+    width: 100% !important;
+    height: 500px !important;
+}
+
+img.preview-tn
+{
+    height: 100px !important;
+    border: solid !important;
+    margin-bottom: 10px !important;
+    cursor: pointer !important;
+}
+
+img.preview-tn-active
+{
+    border-color: gold !important;
+}
+
+.text-cursor
+{
+    cursor: text !important;
+}
+
+span.lonetag, div.lonetag
+{
+    font-size: 100% !important;
+    line-height: 1.5 !important;
+}
+
+.margin-20
+{
+    margin: 20px !important;
+}
+
+.datepicker-proxy
+{
+    width: 0px !important;
+    height: 0px !important;
+    line-height: 0px !important;
+    border: 0px !important;
+    margin: 0px !important;
+    padding: 0px !important;
+    display: inline !important;
+}
+
+.ui-datepicker-prev .ui-icon, .ui-datepicker-month, .ui-datepicker-year
+{
+    width: auto !important;
+}
+
+img.quick-lookup
+{
+    max-width: 800px !important;
+    max-height: 640px !important;
+}
+
+div.chart-container
+{
+    padding: 0 30px 0 0;
+}
+
+.width-auto
+{
+    width: auto !important;
+}
+
+.mid-center
+{
+    vertical-align: middle !important;
+    text-align: center !important;
+}
+
+.text-middle
+{
+    vertical-align: middle !important;
+}
+
+.wrap
+{
+    word-wrap: break-word;
+}
+.detail-counter{
+    margin-top: 20px;
+}
+
+.table-system-health td:nth-child(1){
+    width: 30%;
+}
+
+.table-system-health td:nth-child(2){
+    width: 70%;
+}
+
+.table-system-health .sup-table td:nth-child(1){
+    width: auto;
+}
+
+.table-system-health .sup-table td:nth-child(2){
+    width: auto;
+}
+.quick_look_btn_submit{
+    margin-left: 25px;
+}
+.body-remarks{
+    padding: 0px !important;
+}

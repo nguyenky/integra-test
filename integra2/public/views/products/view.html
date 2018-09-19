@@ -1,0 +1,162 @@
+<section id="widget-grid">
+    <div class="row">
+        <article class="col-xs-12">
+            <div class="jarviswidget jarviswidget-color-teal">
+                <header>
+                    <span class="widget-icon"> <i class="fa fa-edit"></i> </span>
+                    <h2>Product Details</h2>
+                    <ul class="nav nav-tabs pull-right in" id="productTabs">
+                        <li class="active">
+                            <a data-toggle="tab" href="#s1"><i class="fa fa-clock-o"></i> <span class="hidden-mobile hidden-tablet">Attributes</span></a>
+                        </li>
+                        <li>
+                            <a data-toggle="tab" href="#s2" ng-click="loadCompat()"><i class="fa fa-puzzle-piece"></i> <span class="hidden-mobile hidden-tablet">Compatibilities</span></a>
+                        </li>
+                        <li>
+                            <a data-toggle="tab" href="#s3"><i class="fa fa-camera"></i> <span class="hidden-mobile hidden-tablet">Images</span></a>
+                        </li>
+                        <li>
+                            <a data-toggle="tab" href="#s4" ng-click="loadSales()"><i class="fa fa-dollar"></i> <span class="hidden-mobile hidden-tablet">Sales</span></a>
+                        </li>
+                    </ul>
+                </header>
+                <div class="no-padding">
+                    <div class="widget-body">
+                        <div id="productTabsContent" class="tab-content">
+                            <div class="tab-pane fade active in padding-10 no-padding-bottom" id="s1">
+                                <form>
+                                    <table class="table table-hover table-bordered">
+                                        <thead>
+                                        <tr>
+                                            <th>Attributes</th>
+                                            <th class="text-center" ng-repeat="store in product.stores">{{store.name}}</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        <tr>
+                                            <th>SKU</th>
+                                            <td colspan="{{product.stores.length}}"><input type="text" ng-model="product.sku"/></td>
+                                        </tr>
+                                        <tr ng-repeat="attrib in product.attribs">
+                                            <th>{{attrib.name}}</th>
+                                            <td ng-repeat="val in attrib.values" colspan="{{attrib.is_global == '1' ? product.stores.length : 1}}">
+                                                <input type="checkbox" ng-model="val.override" ng-hide="$first"/>
+
+                                                <input ng-class="inputClass(attrib)" type="text" ng-model="val.value" ng-show="(val.override || $first) && attrib.type != 'textarea' && attrib.type != 'boolean' && attrib.type != 'select'"/>
+
+                                                <textarea class="attrib-text" rows="5" ng-model="val.value" ng-show="(val.override || $first) && attrib.type == 'textarea'"/>
+
+                                                <select ng-model="val.value" ng-show="(val.override || $first) && attrib.type == 'select'">
+                                                    <option ng-repeat="opt in attrib.options" value="{{opt.id}}">{{opt.name}}</option>
+                                                </select>
+
+                                                <select ng-model="val.value" ng-show="(val.override || $first) && attrib.type == 'boolean'">
+                                                    <option value="1">Yes</option>
+                                                    <option value="0">No</option>
+                                                </select>
+                                            </td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                    <div class="pull-right padding-bottom-10">
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <button class="btn btn-default" type="button" ng-click="syncAttribs()" ng-show="canSyncAttrib" ng-disabled="submitWait">
+                                                    <i class="fa fa-refresh" ng-class="{'fa-spin': attribSyncing}"></i>
+                                                    <span>Sync with W{{supplier}}</span>
+                                                </button>
+                                                &nbsp;&nbsp;
+                                                <button class="btn btn-primary" type="button" ng-click="saveProduct()" ng-disabled="submitWait">
+                                                    <i class="fa fa-save"></i>
+                                                    <span>Submit</span>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+
+                            <div class="tab-pane fade" id="s2">
+                                <table ng-table="tableParams" show-filter="true" class="table table-striped table-hover">
+                                    <tbody>
+                                    <tr ng-repeat="entry in $data">
+                                        <td data-title="'Make'" sortable="'make'" filter="{'make':'text'}">{{entry.make}}</td>
+                                        <td data-title="'Model'" sortable="'model'" filter="{'model':'text'}">{{entry.model}}</td>
+                                        <td data-title="'Year'" sortable="'year'" filter="{'year':'text'}">{{entry.year}}</td>
+                                        <td data-title="'Notes'" sortable="'notes'" filter="{'notes':'text'}">{{entry.notes}}</td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div class="tab-pane fade" id="s3">
+                                <div class="padding-10">
+                                    <div ng-repeat="image in product.images" class="margin-bottom-10 product-image-item">
+                                        <img ng-src="http://catalog.eocenterprise.com/img/{{image|nodash}}/cl1-tneb"/><br/>
+                                        <a ng-hide="$first" class="action-link" ng-click="deleteImage($index)">Delete</a>
+                                    </div>
+                                    <div class="dropzone"></div>
+                                </div>
+                            </div>
+
+                            <div class="tab-pane fade" id="s4">
+                                <table ng-table="tableParamsSales" show-filter="true" class="table table-striped table-hover">
+                                    <tbody>
+                                    <tr ng-repeat="entry in $data" ng-click="openSales(entry.id)" class="action-link">
+                                        <td data-title="'Record #'" sortable="'record_num'" filter="{'record_num':'text'}">{{entry.record_num}}</td>
+                                        <td data-title="'Date'" sortable="'order_date'" filter="{'order_date':'date'}">{{entry.order_date}}</td>
+                                        <td data-title="'Store'" sortable="'store'" filter="{'store':'text'}">{{entry.store}}</td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </article>
+    </div>
+</section>
+
+<script type="text/javascript">
+    pageSetUp();
+
+    var pagefunction = function()
+    {
+        Dropzone.autoDiscover = false;
+        $('.dropzone').dropzone(
+                {
+                    paramName: 'file',
+                    url: "/api/products/images",
+                    addRemoveLinks : false,
+                    uploadMultiple: false,
+                    maxFilesize: 10,
+                    init: function()
+                    {
+                        var scope = angular.element($('.dropzone')).scope();
+                        scope.dropzone = this;
+
+                        this.on("sending", function(file, xhr, fd)
+                        {
+                            var scope = angular.element($('.dropzone')).scope();
+                            fd.append('sku', scope.product.sku);
+                        });
+
+                        this.on("success", function(file, response)
+                        {
+                            var scope = angular.element($('.dropzone')).scope();
+                            scope.$apply(function() {scope.product.images.push(response.name);});
+                        });
+
+                        this.on("error", function(file, response)
+                        {
+                            var scope = angular.element($('.dropzone')).scope();
+                            scope.$apply(function() {scope.$popError(response);});
+                            return response;
+                        });
+                    }
+                });
+    };
+
+    loadScript("js/plugin/dropzone/dropzone.min.js", pagefunction);
+</script>

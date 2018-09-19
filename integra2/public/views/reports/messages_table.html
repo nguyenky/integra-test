@@ -1,0 +1,209 @@
+<section id="widget-grid" data-ng-controller="Controller">
+	<div class="row">
+		<article class="col-xs-4">
+			<div class="jarviswidget jarviswidget-color-teal">
+				<header>
+					<span class="widget-icon"><i class="fa fa-bar-chart-o"></i></span>
+					<h2>Daily Summary</h2>
+                    <div class="widget-toolbar" role="menu">
+
+                        <div class="btn-group">
+                            <button class="btn dropdown-toggle btn-xs btn-warning" data-toggle="dropdown">
+                                {{store}} <i class="fa fa-caret-down"></i>
+                            </button><div class="dropdown-backdrop"></div>
+                            <ul class="dropdown-menu pull-right">
+                                <li ng-repeat="s in stores">
+                                    <a href="#" ng-click="filterStore(s)">{{s}}</a>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <div class="btn-group">
+                            <button class="btn dropdown-toggle btn-xs btn-warning" data-toggle="dropdown">
+                                {{agent.replace('@eocenterprise.com', '')}} <i class="fa fa-caret-down"></i>
+                            </button><div class="dropdown-backdrop"></div>
+                            <ul class="dropdown-menu pull-right">
+                                <li><a href="#" ng-click="filterAgent('All')">All</a></li>
+                                <li ng-repeat="s in agents">
+                                    <a href="#" ng-click="filterAgent(s.email)">{{s.email.replace('@eocenterprise.com', '')}}</a>
+                                </li>
+                            </ul>
+                        </div>
+
+                        &nbsp;&nbsp;
+                        <input class="datepicker-proxy text-center" type="text" jqdatepicker="onSelectDate" ng-model="date" style="width:100px !important;"/>
+                    </div>
+				</header>
+				<div>
+                    <div class="widget-body no-padding">
+                        <table class="table table-condensed table-bordered table-stripped table-hover">
+                            <tbody>
+                            <tr class="bg-warning">
+                                <th>Incoming</th>
+                                <td class="text-right">{{data.totals.incoming}}</td>
+                            </tr>
+                            <tr class="bg-warning">
+                                <th>
+                                    <a ng-click="getMessages('All', 'replies')" class="action-link">
+                                        Replies
+                                    </a>
+                                </th>
+                                <td class="text-right">{{data.totals.reply}}</td>
+                            </tr>
+                            <tr ng-repeat="r in data.reply">
+                                <th>&nbsp;&nbsp;&nbsp;
+                                    <a ng-click="getMessages(r.u, 'replies')" class="action-link">
+                                        {{r.u.replace('@eocenterprise.com', '')}}
+                                    </a>
+                                </th>
+                                <td class="text-right">{{r.c}}</td>
+                            </tr>
+                            <tr class="bg-warning">
+                                <th>
+                                    <a ng-click="getMessages('All', 'flagged')" class="action-link">
+                                        Flags
+                                    </a>
+                                </th>
+                                <td class="text-right">{{data.totals.flagged}}</td>
+                            </tr>
+                            <tr ng-repeat="r in data.flagged">
+                                <th>&nbsp;&nbsp;&nbsp;
+                                    <a ng-click="getMessages(r.u, 'flagged')" class="action-link">
+                                        {{r.u.replace('@eocenterprise.com', '')}}
+                                    </a>
+                                </th>
+                                <td class="text-right">{{r.c}}</td>
+                            </tr>
+                            <tr class="bg-warning">
+                                <th>
+                                    <a ng-click="getMessages('All', 'compositions')" class="action-link">
+                                        Compositions
+                                    </a>
+                                </th>
+                                <td class="text-right">{{data.totals.compose}}</td>
+                            </tr>
+                            <tr ng-repeat="r in data.compose">
+                                <th>&nbsp;&nbsp;&nbsp;
+                                    <a ng-click="getMessages(r.u, 'compositions')" class="action-link">
+                                        {{r.u.replace('@eocenterprise.com', '')}}
+                                    </a>
+                                </th>
+                                <td class="text-right">{{r.c}}</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+				</div>
+			</div>
+		</article>
+	</div>
+
+    <div class="row" ng-show="messages != null">
+        <article class="col-xs-12">
+            <div class="jarviswidget jarviswidget-color-teal">
+                <header>
+                    <span class="widget-icon"><i class="fa fa-bar-chart-o"></i></span>
+                    <h2>Messages {{selectedActivity}} by {{selectedAgent}} in store: {{store}} </h2>
+                </header>
+                <div>
+                    <div class="widget-body no-padding">
+                        <table class="table table-condensed table-bordered table-stripped table-hover">
+                            <thead>
+                            <tr>
+                                <th>Timestamp</th>
+                                <th>Agent</th>
+                                <th>Customer</th>
+                                <th>Message</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr ng-repeat="msg in messages">
+                                <td>{{msg.d}}</td>
+                                <td>{{msg.u.replace('@eocenterprise.com', '')}}</td>
+                                <td>{{msg.b}}</td>
+                                <td>{{msg.m}}</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </article>
+    </div>
+</section>
+
+<script type="text/javascript">
+	pageSetUp();
+
+    function Controller ($scope, $http)
+    {
+        $scope.agents = [];
+        $scope.stores = ['All', 'eBay', 'Amazon', 'Online Stores'];
+
+        $scope.agent = 'All';
+        $scope.store = 'All';
+
+        $scope.selectedAgent = null;
+        $scope.selectedActivity = null;
+        $scope.messages = null;
+
+        $scope.data = [];
+        $scope.date = new Date().toISOString().split('T')[0];
+
+        $scope.filterStore = function(s) {
+            $scope.store = s;
+            $scope.reloadData();
+        };
+
+        $scope.filterAgent = function(s) {
+            $scope.agent = s;
+            $scope.reloadData();
+        };
+
+        $scope.getMessages = function(agent, activity) {
+
+            if (activity == 'replies') {
+                $scope.selectedActivity = 'replied to';
+            }
+            else if (activity == 'flagged') {
+                $scope.selectedActivity = 'flagged';
+            }
+            else if (activity == 'compositions') {
+                $scope.selectedActivity = 'composed';
+            }
+
+            $http.get('/api/messages/' + activity + '?date=' + $scope.date + '&store=' + encodeURIComponent($scope.store) + '&agent=' + encodeURIComponent(agent))
+                    .success(function (data) {
+                        $scope.selectedAgent = agent;
+                        $scope.messages = data;
+                    })
+                    .error(function () {
+                        $scope.selectedAgent = null;
+                        $scope.messages = null;
+                        $scope.$popError('Unable to load messages');
+                    });
+        };
+
+        $scope.reloadData = function() {
+            $scope.selectedAgent = null;
+            $scope.selectedActivity = null;
+            $scope.messages = null;
+
+            $http.get('/api/messages/table?date=' + $scope.date + '&store=' + encodeURIComponent($scope.store) + '&agent=' + encodeURIComponent($scope.agent))
+                    .success(function (data) {
+                        $scope.data = data;
+                        $scope.agents = data.agents;
+                    })
+                    .error(function () {
+                        $scope.$popError('Unable to load data');
+                    });
+        };
+
+        $scope.onSelectDate = function(date) {
+            $scope.date = date;
+            $scope.reloadData();
+        };
+
+        $scope.reloadData();
+    }
+</script>

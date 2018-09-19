@@ -1,0 +1,586 @@
+<style type="text/css">
+
+    .filter-area {
+        margin-top: 10px;
+        margin-bottom: 10px;
+    }
+
+</style>
+<section id="widget-grid" data-ng-controller="Controller">
+    <div class="filter-area">
+        <div class="row">
+            <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
+                Time Range:
+            </div>
+
+            <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2 year" ng-show="!showCustomDate">
+                <label>Year: </label>
+                <select class="form-control" ng-model="filter.year" ng-change="setFilters();">
+                    <option ng-repeat="year in years" ng-value="year">{{year}}</option>
+                </select>
+            </div>
+
+            <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2 month" ng-show="!showCustomDate">
+                <label>Month: </label>
+                <select class="form-control" ng-model="filter.month" ng-change="setFilters();" 
+                        ng-options="month.id as month.value for month in months">
+                </select>
+            </div>
+
+            <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2 fromDate" ng-show="showCustomDate">
+                <label>From Date</label>
+                <input class="text-center" type="text" jqdatepicker="onSelectStartDate" ng-model="startDate" style="width:100px !important;" />
+            </div>
+
+            <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2 endDate" ng-show="showCustomDate">
+                <label>End Date</label>
+                <input class="text-center" type="text" jqdatepicker="onSelectEndDate" ng-model="endDate" style="width:100px !important;" />
+            </div>
+            
+            <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
+                <input type="checkbox" ng-model="showCustomDate" value="custom" /> Custom
+            </div>
+
+            
+            <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">&nbsp;</div> 
+        </div>
+
+        <div class="row">
+            <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2">View mode: </div>
+            <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
+                <input type="radio" ng-disabled="disableDaily"  ng-model="filter.viewMode" ng-change="setFilters();" value="1" /> Daily 
+            </div>
+            <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
+                <input type="radio" ng-disabled="disableWeekly" ng-model="filter.viewMode" ng-change="setFilters();" value="2" /> Weekly 
+            </div>
+            <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
+                <input type="radio" ng-disabled="disableMonthly" ng-model="filter.viewMode" ng-change="setFilters();" value="3" /> Monthly 
+            </div>
+
+            <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">&nbsp;</div>
+            
+        </div>
+        <div class="row">
+            <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">&nbsp;</div>
+            <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
+                <button class="btn btn-primary" ng-click="applyFilter()" >Apply</button>
+            </div>
+            <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">&nbsp;</div>
+        </div>
+
+        <div class="row">
+            <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                <a style="font-weight:bold;" ng-hide="disablePrevious" ng-click="previous();" href="#"> &lt;&lt; </a>
+                <span style="font-weight:bold;">From: </span><span>{{filter.startDate}}</span>
+                 - 
+                <span style="font-weight:bold;">To: </span><span>{{filter.endDate}}</span>
+                <a style="font-weight:bold;" ng-hide="disableNext" ng-click="next();" href="#"> &gt;&gt; </a>
+            </div>
+            <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">&nbsp;</div>
+        </div>
+
+    </div>
+    
+	<div class="row">
+		<article class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+			<div class="jarviswidget jarviswidget-color-teal">
+				<header>
+					<span class="widget-icon"><i class="fa fa-bar-chart-o"></i></span>
+					<h2>eBay - Listings Edited</h2>
+                    <div class="widget-toolbar" role="menu">
+                        <div class="btn-group">
+                            <button class="btn dropdown-toggle btn-xs btn-warning" data-toggle="dropdown">
+                                {{days}} days <i class="fa fa-caret-down"></i>
+                            </button><div class="dropdown-backdrop"></div>
+                            <ul class="dropdown-menu pull-right">
+                                <li>
+                                    <a href="#" ng-click="reloadData(2)">2 days</a>
+                                </li>
+                                <li>
+                                    <a href="#" ng-click="reloadData(5)">5 days</a>
+                                </li>
+                                <li>
+                                    <a href="#" ng-click="reloadData(7)">7 days</a>
+                                </li>
+                                <li>
+                                    <a href="#" ng-click="reloadData(14)">14 days</a>
+                                </li>
+                                <li>
+                                    <a href="#" ng-click="reloadData(21)">21 days</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+				</header>
+				<div>
+					<div class="widget-body chart-container">
+                        <canvas class="chart chart-bar" chart-data="edited" chart-labels="edited_x" chart-series="edited_u" chart-options="options"></canvas>
+					</div>
+				</div>
+			</div>
+		</article>
+	</div>
+
+    <div class="row">
+        <article class="col-xs-12 col-sm-8 col-md-6 col-lg-6">
+            <div class="jarviswidget jarviswidget-color-teal">
+                <header>
+                    <span class="widget-icon"><i class="fa fa-bar-chart-o"></i></span>
+                    <h2>eBay - Listings Edited Statistics</h2>
+                </header>
+                <div>
+                    <div class="widget-body no-padding">
+                        <table class="table table-condensed table-bordered table-striped">
+                            <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>User</th>
+                                <th class="text-right">Average</th>
+                                <th class="text-right">Variance</th>
+                                <th class="text-right">Total</th>
+                                <th class="text-right">Min</th>
+                                <th class="text-right">Max</th>
+                                <th class="text-right">Goal Reach %</th>
+                                <th class="text-right">Score</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr ng-repeat="s in stats_edited">
+                                <td>{{s.date}}</td>
+                                <td>{{s.user}}</td>
+                                <td class="text-right">{{s.average}}</td>
+                                <td class="text-right">{{s.variance}}</td>
+                                <td class="text-right">{{s.total}}</td>
+                                <td class="text-right">{{s.min}}</td>
+                                <td class="text-right">{{s.max}}</td>
+                                <td class="text-right">{{s.hit_pct}}</td>
+                                <td class="text-right">{{s.score}}</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>   
+            </div>
+        </article>
+    </div>
+
+    <div class="row">
+        <article class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+            <div class="jarviswidget jarviswidget-color-teal">
+                <header>
+                    <span class="widget-icon"><i class="fa fa-bar-chart-o"></i></span>
+                    <h2>eBay - Listings Created</h2>
+                </header>
+                <div>
+                    <div class="widget-body chart-container">
+                        <canvas class="chart chart-bar" chart-data="created" chart-labels="created_x" chart-series="created_u" chart-options="options"></canvas>
+                    </div>
+                </div>
+            </div>
+        </article>
+    </div>
+
+    <div class="row">
+        <article class="col-xs-12 col-sm-8 col-md-6 col-lg-6">
+            <div class="jarviswidget jarviswidget-color-teal">
+                <header>
+                    <span class="widget-icon"><i class="fa fa-bar-chart-o"></i></span>
+                    <h2>eBay - Listings Created Statistics</h2>
+                </header>
+                <div>
+                    <div class="widget-body no-padding">
+                        <table class="table table-condensed table-bordered table-striped table-hover">
+                            <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>User</th>
+                                <th class="text-right">Average</th>
+                                <th class="text-right">Variance</th>
+                                <th class="text-right">Total</th>
+                                <th class="text-right">Min</th>
+                                <th class="text-right">Max</th>
+                                <th class="text-right">Goal Reach %</th>
+                                <th class="text-right">Score</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr ng-repeat="s in stats_created">
+                                <td>{{s.date}}</td>
+                                <td>{{s.user}}</td>
+                                <td class="text-right">{{s.average}}</td>
+                                <td class="text-right">{{s.variance}}</td>
+                                <td class="text-right">{{s.total}}</td>
+                                <td class="text-right">{{s.min}}</td>
+                                <td class="text-right">{{s.max}}</td>
+                                <td class="text-right">{{s.hit_pct}}</td>
+                                <td class="text-right">{{s.score}}</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </article>
+    </div>
+
+</section>
+
+<script type="text/javascript">
+	pageSetUp();
+
+    function Controller ($scope, $http, $window)
+    {
+        $window.scope = $scope;
+        $scope.options = {
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        beginAtZero:true
+                    }
+                }]
+            }
+        };
+
+        $scope.months = [{id: 1, value: 'January'}, {id: 2, value: 'February'}, {id: 3, value: 'March'},
+                         {id: 4, value: 'April'}, {id: 5, value: 'May'}, {id: 6, value: 'June'}, 
+                         {id: 7, value: 'July'}, {id: 8, value: 'August'}, {id: 9, value: 'September'},
+                         {id: 10, value: 'October'}, {id: 11, value: 'November'}, {id: 12, value: 'December'}];
+
+        var today = new Date();
+        var last5Years = today.getFullYear() - 5;
+
+        $scope.years = [];
+        for(i = 0; i <= 5; i++) {
+            $scope.years.push(last5Years + i);
+        }
+
+        $scope.filter = {};
+
+        $scope.filter.viewMode = 1;
+        $scope.filter.month = today.getMonth() + 1;
+        $scope.filter.year = today.getFullYear();
+        $scope.showCustomDate = false;
+        $scope.disableNext = true;
+        $scope.disablePrevious = false;
+        $scope.timeRangeTooLong = false;
+
+        $scope.edited = [];
+        $scope.edited_x = [];
+        $scope.edited_u = [];
+
+        $scope.created = [];
+        $scope.created_x = [];
+        $scope.created_u = [];
+
+        $scope.stats_edited = [];
+        $scope.stats_created = [];
+
+
+        function getStartWeek(date) {
+            var first = date.getDate() - date.getDay();
+            first = first + 1;
+            var startWeek = new Date(date.setDate(first));
+            return convertToDbFormat(startWeek);
+        }
+
+        function convertToDbFormat(date) {
+            var dd = date.getDate().toString();
+            var mm = (date.getMonth() + 1).toString();
+            var year = date.getFullYear().toString();
+            return [year, '-', mm.length == 1 ? '0' + mm : mm, '-', dd.length == 1 ? '0' + dd : dd].join('');
+        }
+
+        function getEndWeek(date) {
+            var first = date.getDate() - date.getDay();
+            var last = first + 7;
+            var endWeek = new Date(date.setDate(last));
+            return convertToDbFormat(endWeek);
+        }
+
+        function getStartMonth(date) {
+            var startMonth = new Date(date.getFullYear(), date.getMonth(), 1);
+
+            return convertToDbFormat(startMonth);
+        }
+
+        function getEndMonth(date) {
+            var endMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+            return convertToDbFormat(endMonth);
+        }
+
+        function getStartYear(date) {
+            var startYear = new Date(date.getFullYear(), 0, 1);
+            return convertToDbFormat(startYear);
+        }
+
+        function getEndYear(date) {
+            var endYear = new Date(date.getFullYear(), 11, 31);
+            return convertToDbFormat(endYear);
+        }
+
+        $scope.enableDisableNextPreviousButton = function() {
+            // disable next button
+            if(!$scope.showCustomDate) {
+                var now = new Date();
+                var utc = now.getTime() + (now.getTimezoneOffset() * 60000);
+                now = new Date(utc + (3600000*-4));
+                now = convertToDbFormat(now);
+
+                if($scope.filter.endDate >= now) {
+                    $scope.disableNext = true;
+                } else {
+                    $scope.disableNext = false;
+                }
+            } else {
+                $scope.disablePrevious = true;
+                $scope.disableNext = true;
+            }
+            
+        }
+
+
+        $scope.setDateRange = function(day) {
+            var viewMode = parseInt($scope.filter.viewMode);
+            switch(viewMode) {
+                case 1:
+                    //Set current week
+                    
+                    $scope.filter.startDate = getStartWeek(day);
+                    $scope.filter.endDate = getEndWeek(day);
+                    break;
+                case 2:
+                    
+                    $scope.filter.startDate = getStartMonth(day);
+                    $scope.filter.endDate = getEndMonth(day);
+                    break;
+                case 3:
+                    
+                    $scope.filter.startDate = getStartYear(day);
+                    $scope.filter.endDate = getEndYear(day);
+                    break;
+            }
+            $scope.enableDisableNextPreviousButton();
+        }
+
+        $scope.applyFilter = function() {
+            if($scope.timeRangeTooLong) {
+                //$scope.$popOk('You cannot select date range longer than 13 months.');
+                $scope.$popError('Error: time range too long', null, 'You cannot select date range longer than 13 months.');
+                return false;
+            }
+            
+            $http.post('/api/ebay/reports', {filter:$scope.filter}).success(function(data) {
+
+                $scope.edited = data.editedChartData.chartData;
+                $scope.edited_x = data.editedChartData.axisX;
+                $scope.edited_u = data.editedChartData.series;
+
+                $scope.created = data.createdChartData.chartData;;
+                $scope.created_x = data.createdChartData.axisX;
+                $scope.created_u = data.createdChartData.series;
+
+                $scope.stats_edited = data.editedStats;
+                $scope.stats_created = data.createdStats;
+
+            }).error(function(error) {
+                $scope.$popError('Error: Calling API failed.', null, error.message());
+                console.log(error);
+            });
+        };
+
+        $scope.validateViewMode = function() {
+            $scope.timeRangeTooLong = false;
+            var startDate = new Date($scope.filter.startDate);
+            var endDate = new Date($scope.filter.endDate);
+
+            var diff = Math.abs(endDate - startDate)/(24*60*60*1000);
+            if(diff < 10) {
+                $scope.disableDaily = false;
+                $scope.disableWeekly = true;
+                $scope.disableMonthly = true;
+                $scope.filter.viewMode = 1;
+            } else if(diff > 10 && diff <= 65) {
+                $scope.disableDaily = true;
+                $scope.disableMonthly = true;
+                $scope.disableWeekly = false;
+                $scope.filter.viewMode = 2;
+            } else if(diff > 65 && diff <= 80) {
+
+                $scope.disableDaily = true;
+                $scope.disableWeekly = false;
+                $scope.disableMonthly = false;
+                $scope.filter.viewMode = 3;
+
+            } else if(diff > 80 && diff <= 400) {
+                $scope.disableDaily = true;
+                $scope.disableWeekly = true;
+                $scope.disableMonthly = false;
+                $scope.filter.viewMode = 3;
+            } else {
+                $scope.timeRangeTooLong = true;
+                $scope.$popError('Error: time range too long', null, 'You cannot select date range longer than 13 months.');
+                //$scope.$popOk('You cannot select date range longer than 13 months.');
+            }
+        }
+
+        $scope.onSelectStartDate = function(date) {
+            $scope.startDate = date;
+            $scope.filter.startDate = date;
+
+            $scope.validateViewMode();
+            $scope.enableDisableNextPreviousButton();
+
+        };
+
+        $scope.onSelectEndDate = function(date) {
+            $scope.endDate = date;
+            $scope.filter.endDate = date;
+            $scope.validateViewMode();
+            $scope.enableDisableNextPreviousButton();
+        }
+
+        $scope.previous = function() {
+
+            if($scope.disablePrevious) {
+                return false;
+            }
+            var date = new Date($scope.filter.startDate);
+            date.setDate(date.getDate() - 2);
+
+            $scope.setDateRange(date);
+            $scope.applyFilter();
+        }
+
+        $scope.next = function() {
+            if($scope.disableNext) {
+                return false;
+            }
+            var date = new Date($scope.filter.endDate);
+            date.setDate(date.getDate() + 2);
+
+            $scope.setDateRange(date);
+            $scope.applyFilter();
+        }
+
+
+        $scope.setFilters = function() {
+            if(!$scope.showCustomDate) {
+                day = new Date($scope.filter.year, ($scope.filter.month - 1), today.getDate());
+                
+                $scope.setDateRange(day);
+            } 
+            
+        }
+
+        $scope.setFilters();
+        
+        $scope.startDate = $scope.filter.startDate;
+        $scope.endDate = $scope.filter.endDate;
+        
+        $scope.reloadData = function(days) {
+            $scope.days = days;
+
+            $http.get('/api/ebay/graph?days=' + days)
+                    .success(function (data) {
+                        var now = new Date();
+                        var utc = now.getTime() + (now.getTimezoneOffset() * 60000);
+                        now = new Date(utc + (3600000*-4));
+
+                        $scope.edited = [];
+                        $scope.edited_x = [];
+                        $scope.edited_u = [];
+
+                        $scope.created = [];
+                        $scope.created_x = [];
+                        $scope.created_u = [];
+
+                        $scope.stats_edited = data.stats_edited;
+                        $scope.stats_created = data.stats_created;
+
+                        for (var i = 0; i < data.edited.length; i++) {
+                            if ($scope.edited_u.indexOf(data.edited[i].u) === -1)
+                                $scope.edited_u.push(data.edited[i].u);
+                        }
+
+                        for (var i = 0; i < $scope.edited_u.length; i++) {
+                            var current = [];
+
+                            for (var h = $scope.days * 24; h >= 0; h--) {
+                                var cur = new Date();
+                                cur.setHours(now.getHours() - h);
+
+                                if (cur.getHours() < 7 || cur.getHours() > 19 || cur.getDay() == 0)
+                                    continue;
+
+                                var mm = (cur.getMonth() + 1).toString();
+                                var dd = cur.getDate().toString();
+                                var hh = cur.getHours().toString();
+
+                                var ch = [mm.length == 1 ? '0' + mm : mm, '/', dd.length == 1 ? '0' + dd : dd, ' ', hh.length == 1 ? '0' + hh : hh, ':00'].join('');
+
+                                if ($scope.edited_x.indexOf(ch) === -1)
+                                    $scope.edited_x.push(ch);
+
+                                var val = 0;
+
+                                for (var j = 0; j < data.edited.length; j++) {
+                                    if (data.edited[j].u == $scope.edited_u[i] && data.edited[j].d == ch) {
+                                        val = data.edited[j].c;
+                                        break;
+                                    }
+                                }
+
+                                current.push(val);
+                            }
+
+                            $scope.edited.push(current);
+                        }
+
+
+                        for (var i = 0; i < data.created.length; i++) {
+                            if ($scope.created_u.indexOf(data.created[i].u) === -1)
+                                $scope.created_u.push(data.created[i].u);
+                        }
+
+                        for (var i = 0; i < $scope.created_u.length; i++) {
+                            var current = [];
+
+                            for (var h = $scope.days * 24; h >= 0; h--) {
+                                var cur = new Date();
+                                cur.setHours(now.getHours() - h);
+
+                                if (cur.getHours() < 7 || cur.getHours() > 19)
+                                    continue;
+
+                                var mm = (cur.getMonth() + 1).toString();
+                                var dd = cur.getDate().toString();
+                                var hh = cur.getHours().toString();
+
+                                var ch = [mm.length == 1 ? '0' + mm : mm, '/', dd.length == 1 ? '0' + dd : dd, ' ', hh.length == 1 ? '0' + hh : hh, ':00'].join('');
+
+                                if ($scope.created_x.indexOf(ch) === -1)
+                                    $scope.created_x.push(ch);
+
+                                var val = 0;
+
+                                for (var j = 0; j < data.created.length; j++) {
+                                    if (data.created[j].u == $scope.created_u[i] && data.created[j].d == ch) {
+                                        val = data.created[j].c;
+                                        break;
+                                    }
+                                }
+
+                                current.push(val);
+                            }
+
+                            $scope.created.push(current);
+                        }
+                    })
+                    .error(function () {
+                        $scope.$popError('Unable to load graph data');
+                    });
+        };
+
+        $scope.reloadData(2);
+    }
+</script>

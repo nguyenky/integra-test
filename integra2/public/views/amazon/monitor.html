@@ -1,0 +1,103 @@
+<section id="widget-grid">
+    <div class="row">
+        <article class="col-xs-12">
+            <div class="jarviswidget jarviswidget-color-teal">
+                <header>
+                    <span class="widget-icon"> <i class="fa fa-eye"></i> </span>
+                    <h2>Amazon Monitor</h2>
+                </header>
+                <div class="widget-body">
+                    <div ng-show="results && results.asins && results.asins.length == 0" class="text-center margin-top-20">
+                        No listings are currently being monitored.
+                    </div>
+                    <form class="form-horizontal" ng-show="results && results.asins && results.asins.length > 0">
+                        <div class="form-group">
+                            <label class="col-xs-4 control-label">Search SKU or ASIN:</label>
+                            <div class="col-xs-2">
+                                <input type="text" ng-model="search" class="form-control" />
+                            </div>
+                            <div class="col-xs-1">
+                                <button type="button" class="btn" ng-click="loadPage(curPage, search)">Search</button>
+                            </div>
+                            <label class="col-xs-1 control-label">Page:</label>
+                            <div class="col-xs-2">
+                                <select ng-model="curPage" ng-change="loadPage(curPage, search)" class="form-control">
+                                    <option ng-repeat="i in getNumber(results.pages) track by $index" value="{{$index+1}}">{{$index+1}}</option>
+                                </select>
+                            </div>
+                            <div class="col-xs-1">
+                            </div>
+                        </div>
+                    </form>
+                    <accordion close-others="false">
+                        <accordion-group ng-repeat="kw in results.asins" is-open="$first" ng-class="{'acc-danger': kw.below_min}" ng-hide="kw.items.length == 0">
+                            <accordion-heading>
+                                <strong>{{kw.asin}} ({{kw.sku}})</strong>
+                                <span class="pull-right">
+                                    <span ng-show="kw.below_min" class="prev-value">below minimum</span>
+                                </span>
+                            </accordion-heading>
+                            <div class="row">
+                                <div class="col-xs-12">
+                                    <table class="table">
+                                        <thead>
+                                        <tr>
+                                            <th>Seller</th>
+                                            <th class="text-center">Price</th>
+                                            <th class="text-center">Last Updated</th>
+                                            <th class="text-center">Actions</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        <tr ng-repeat="item in kw.items" ng-class="{'bg-warning': ((item.into_buybox || item.outof_buybox) && !item.below_min), 'bg-danger': (!(item.into_buybox || item.outof_buybox) && item.below_min)}">
+                                            <td>{{item.seller}} <span ng-show="item.fba">(FBA)</span></td>
+                                            <td class="text-right">{{item.latest_price}}
+                                                <span ng-show="item.into_buybox">
+                                                    <br/><span class="prev-value">into buybox</span>
+                                                </span>
+                                                <span ng-show="item.outof_buybox">
+                                                    <br/><span class="prev-value">out of buybox</span>
+                                                </span>
+                                                <span ng-show="item.below_min">
+                                                    <br/><span class="prev-value">below minimum</span>
+                                                </span>
+                                            </td>
+                                            <td class="text-center">{{item.ts}}</td>
+                                            <td class="text-center">
+                                                <button ng-show="item.into_buybox || item.outof_buybox || item.below_min" type="button" class="btn btn-sm btn-success" ng-click="ackmonitor(kw, $index)">Acknowledge</button>
+                                            </td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </accordion-group>
+                    </accordion>
+                    <form class="form-horizontal" ng-show="results && results.asins && results.asins.length > 0">
+                        <div class="form-group">
+                            <label class="col-xs-4 control-label">Search ASIN or SKU:</label>
+                            <div class="col-xs-2">
+                                <input type="text" ng-model="search" class="form-control" />
+                            </div>
+                            <div class="col-xs-1">
+                                <button type="button" class="btn" ng-click="loadPage(curPage, search)">Search</button>
+                            </div>
+                            <label class="col-xs-1 control-label">Page:</label>
+                            <div class="col-xs-2">
+                                <select ng-model="curPage" ng-change="loadPage(curPage, search)" class="form-control">
+                                    <option ng-repeat="i in getNumber(results.pages) track by $index" value="{{$index+1}}">{{$index+1}}</option>
+                                </select>
+                            </div>
+                            <div class="col-xs-1">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </article>
+    </div>
+</section>
+
+<script type="text/javascript">
+    pageSetUp();
+</script>

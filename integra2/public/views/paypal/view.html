@@ -1,0 +1,98 @@
+<section id="widget-grid">
+    <div class="row">
+        <article class="col-xs-12 col-sm-8 col-md-6">
+            <div class="jarviswidget jarviswidget-color-teal">
+                <header>
+                    <span class="widget-icon"> <i class="fa fa-edit"></i> </span>
+                    <h2>Invoice Details</h2>
+                </header>
+                <div>
+                    <div class="widget-body no-padding">
+                        <table class="table table-hover">
+                            <tbody>
+                            <tr>
+                                <th>Invoice Number</th>
+                                <td>
+                                    <a ng-show="entry.paypal_invoice_id" target="_blank" href="{{paypalUrl}}/us/cgi_bin/webscr?cmd=_pay-inv&id={{entry.paypal_invoice_id}}&viewtype=altview">{{entry.invoice_num}}</a>
+                                    <span ng-hide="entry.paypal_invoice_id">{{entry.invoice_num}}</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Email</th>
+                                <td>{{entry.email}}</td>
+                            </tr>
+                            <tr>
+                                <th>Status</th>
+                                <td>
+                                    <span ng-show="entry.status=='Unpaid'" class="label label-warning">Unpaid</span>
+                                    <span ng-show="entry.status=='Paid'" class="label label-success" localize>Paid</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Order Number</th>
+                                <td>
+                                    <a ng-show="entry.order_id" href="http://integra2.eocenterprise.com/#/orders/view/{{entry.order_id}}">{{entry.order.record_num}}</a>
+                                    <span ng-hide="entry.order_id">No linked order</span>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </article>
+    </div>
+
+    <div class="row">
+        <article class="col-xs-12">
+            <div class="jarviswidget jarviswidget-color-teal">
+                <header>
+                    <span class="widget-icon"> <i class="fa fa-edit"></i> </span>
+                    <h2>Items</h2>
+                </header>
+                <div>
+                    <div class="widget-body no-padding">
+                        <table class="table table-hover">
+                            <thead>
+                            <tr>
+                                <th class="text-center">Quantity</th>
+                                <th>SKU</th>
+                                <th>Description</th>
+                                <th class="text-right">Unit Price</th>
+                                <th class="text-right">Subtotal</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr ng-repeat="item in entry.items">
+                                <td class="text-center">{{item.quantity}}</td>
+                                <td>{{item.sku}}</td>
+                                <td>{{item.description}}</td>
+                                <td class="text-right">{{item.unit_price}}</td>
+                                <td class="text-right">{{item.quantity * item.unit_price}}</td>
+                            </tr>
+                            </tbody>
+                            <tfoot>
+                            <tr>
+                                <th colspan="4" class="text-right">Shipping</td>
+                                <td class="text-right">{{entry.shipping_cost}}</td>
+                            </tr>
+                            <tr ng-show="entry.misc_item">
+                                <th colspan="4" class="text-right">{{entry.misc_item}}</td>
+                                <td class="text-right">{{entry.misc_amount}}</td>
+                            </tr>
+                            <tr class="info">
+                                <th colspan="4" class="text-right">GRAND TOTAL</td>
+                                <th class="text-right">{{entry.total}}</td>
+                            </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </article>
+    </div>
+</section>
+
+<script type="text/javascript">
+    pageSetUp();
+</script>

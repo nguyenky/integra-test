@@ -1,0 +1,77 @@
+<section id="widget-grid" data-ng-controller="Controller">
+	<div class="row">
+		<article class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+			<div class="jarviswidget jarviswidget-color-teal">
+				<header>
+					<span class="widget-icon"><i class="fa fa-users"></i></span>
+					<h2>Users</h2>
+				</header>
+				<div>
+					<div class="widget-body no-padding">
+						<table data-ng-table="tableParams" data-show-filter="true" class="table table-striped table-hover">
+							<tbody>
+                                <tr data-ng-repeat="entry in $data">
+                                    <td data-title="'Email'" data-sortable="'email'" data-filter="{'email':'text'}">
+                                        <span data-editable-text="entry.email" data-e-name="email" data-e-form="rowform" data-e-required>{{entry.email}}</span>
+                                    </td>
+                                    <td data-title="'First Name'" data-sortable="'first_name'" data-filter="{'first_name':'text'}">
+                                        <span data-editable-text="entry.first_name" data-e-name="first_name" data-e-form="rowform" data-e-required>{{entry.first_name}}</span>
+                                    </td>
+                                    <td data-title="'Last Name'" data-sortable="'last_name'" data-filter="{'last_name':'text'}">
+                                        <span data-editable-text="entry.last_name" data-e-name="last_name" data-e-form="rowform" data-e-required>{{entry.last_name}}</span>
+                                    </td>
+                                    <td data-title="'IP Restriction'" data-sortable="'ip_restriction'" data-filter="{'ip_restriction':'text'}">
+                                        <span data-editable-text="entry.ip_restriction" data-e-name="ip_restriction" data-e-form="rowform" data-e-required>{{entry.ip_restriction}}</span>
+                                    </td>
+                                    <td data-title="'Group'" data-sortable="'group_name'" data-filter="{'group_name':'text'}">
+                                        <span data-editable-text="entry.group_name" data-e-name="group_name" data-e-form="rowform" data-e-required>{{entry.group_name}}</span>
+                                    </td>
+                                    <td class="text-center">
+                                        <form data-editable-form name="rowform" data-onbeforesave="saveEntry(entry.id, $data)" data-ng-show="rowform.$visible" class="form-buttons form-inline rowform">
+                                            <button title="Update" type="submit" data-ng-disabled="rowform.$waiting" class="btn btn-primary"><i class="glyphicon glyphicon-ok"></i></button>
+                                            <button title="Cancel" type="button" data-ng-disabled="rowform.$waiting" data-ng-click="rowform.$cancel()" class="btn btn-default"><i class="glyphicon glyphicon-remove"></i></button>
+                                        </form>
+                                        <div class="buttons" data-ng-show="!rowform.$visible">
+                                            <button title="Edit" class="btn btn-primary" data-ng-click="rowform.$show()"><i class="fa fa-edit"></i></button>
+                                            <button title="Delete" class="btn btn-danger" data-ng-click="deleteEntry(entry.id)" data-ng-confirm-click="Are you sure you want to delete this user?"><i class="fa fa-trash-o"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+							</tbody>
+                            <tfoot>
+                            <tr>
+                                <td><input data-ng-model="newEntry.email" data-ng-disabled="newWait" class="form-control" type="text" required placeholder="Email"/></td>
+                                <td><input data-ng-model="newEntry.first_name" data-ng-disabled="newWait" class="form-control" type="text" required placeholder="First Name"/></td>
+                                <td><input data-ng-model="newEntry.last_name" data-ng-disabled="newWait" class="form-control" type="text" required placeholder="Last Name"/></td>
+                                <td><input data-ng-model="newEntry.ip_restriction" data-ng-disabled="newWait" class="form-control" type="text" placeholder="IP Restriction"/></td>
+                                <td><input data-ng-model="newEntry.group_name" data-ng-disabled="newWait" class="form-control" type="text" required placeholder="Group"/></td>
+                                <td class="text-center"><form data-ng-submit="saveEntry(0, newEntry)" class="form-buttons form-inline rowform"><button type="submit" class="btn btn-primary" data-ng-disabled="newWait"><i class="glyphicon glyphicon-plus"></i> <span>Add New</span></button></form></td>
+                            </tr>
+                            </tfoot>
+						</table>
+					</div>
+				</div>
+			</div>
+		</article>
+	</div>
+</section>
+
+<script type="text/javascript">
+	pageSetUp();
+
+    function Controller ($scope)
+    {
+        $scope.crud($scope,
+        {
+            getUrl: '/api/users/',
+            newEntry:
+            {
+                email: null,
+                first_name: null,
+                last_name: null,
+                ip_restriction: null,
+                group_name: null
+            }
+        });
+    }
+</script>

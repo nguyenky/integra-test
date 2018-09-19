@@ -1,0 +1,174 @@
+<section id="widget-grid">
+    <div class="row">
+        <article class="col-xs-12 col-sm-10 col-md-6 col-lg-6">
+            <div class="jarviswidget jarviswidget-color-teal">
+                <header>
+                    <span class="widget-icon"> <i class="fa fa-edit"></i> </span>
+                    <h2>New Kit Hunting Job</h2>
+                </header>
+                <div>
+                    <div class="widget-body">
+                        <form class="form-horizontal" ng-submit="saveEntry(newEntry.id, newEntry)">
+                            <fieldset>
+                                <legend>Components</legend>
+                                <div class="form-group">
+                                    <div class="col-xs-12">
+                                        <label class="radio-inline">
+                                            <input type="radio" ng-model="newEntry.job_type" value="1" ng-change="changeJobType()"> Enter part types
+                                        </label>
+                                        <label class="radio-inline">
+                                            <input type="radio" ng-model="newEntry.job_type" value="2" ng-change="changeJobType()"> Enter MPNs
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="form-group" ng-show="newEntry.job_type == 1">
+                                    <div class="col-xs-10">
+                                        <input class="form-control" placeholder="Enter part type" type="text" list="list" ng-enter="getPartTypes()" ng-model="currentPartType">
+                                        <datalist id="list">
+                                            <option ng-repeat="partType in partTypes" value="{{partType}}">{{partType}}</option>
+                                        </datalist>
+                                        <p ng-show="partTypes.length >= 20" class="note">There are too many matching part types. Please refine your keywords.</p>
+                                    </div>
+                                    <div class="col-xs-2 text-center">
+                                        <button class="btn btn-default" type="button" ng-click="addComponent()" ng-disabled="!currentPartType || currentPartType.length == 0">
+                                            <i class="fa fa-plus"></i>
+                                            <span>Add</span>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="form-group" ng-show="newEntry.job_type == 2">
+                                    <div class="col-xs-2">
+                                        <input class="form-control" placeholder="Quantity" type="number" min="1" max="100" ng-model="currentQtyBase">
+                                    </div>
+                                    <div class="col-xs-8">
+                                        <input class="form-control" placeholder="MPN Choices" type="text" ng-model="currentMPNs">
+                                        <p class="note">Separate alternative MPNs by comma. Example: ABC123,XYZ888</p>
+                                    </div>
+                                    <div class="col-xs-2 text-center">
+                                        <button class="btn btn-default" type="button" ng-click="addComponent2()" ng-disabled="!currentQtyBase || !currentMPNs || currentMPNs.length == 0">
+                                            <i class="fa fa-plus"></i>
+                                            <span>Add</span>
+                                        </button>
+                                    </div>
+                                </div>
+                                <ul>
+                                    <li ng-repeat="component in newEntry.components">
+                                        {{formatComponent(component)}}
+                                        <a class="action-link" ng-click="deleteComponent($index)" title="Delete"><i class="fa fa-trash-o"></i></a>
+                                    </li>
+                                </ul>
+                            </fieldset>
+                            <fieldset>
+                                <legend>Add-on MPNs</legend>
+                                <div class="form-group">
+                                    <div class="col-xs-2">
+                                        <select class="form-control" ng-model="currentSupplier">
+                                            <option disabled value="">W#</option>
+                                            <option value="1">W1</option>
+                                            <option value="2">W2</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-xs-2">
+                                        <input class="form-control" placeholder="Quantity" type="number" min="1" max="100" ng-model="currentQty">
+                                    </div>
+                                    <div class="col-xs-6">
+                                        <input class="form-control" placeholder="MPN" type="text" ng-model="currentMPN">
+                                    </div>
+                                    <div class="col-xs-2 text-center">
+                                        <button class="btn btn-default" type="button" ng-click="addAddon()" ng-disabled="submitWait || !currentSupplier || !currentMPN || currentMPN.length == 0">
+                                            <i class="fa fa-plus"></i>
+                                            <span>Add</span>
+                                        </button>
+                                    </div>
+                                </div>
+                                <ul>
+                                    <li ng-repeat="addon in newEntry.addons">
+                                        W{{addon.supplier}}: {{addon.qty}}x {{addon.mpn}}
+                                        <a class="action-link" ng-click="deleteAddon($index)" title="Delete"><i class="fa fa-trash-o"></i></a>
+                                    </li>
+                                </ul>
+                            </fieldset>
+                            <fieldset>
+                                <legend>Common Data</legend>
+                                <div class="form-group">
+                                    <label class="col-xs-2 control-label">Base Title</label>
+                                    <div class="col-xs-10">
+                                        <input required class="form-control" type="text" maxlength="80" ng-model="newEntry.base_title" placeholder="Integra will append the compatible vehicles to this base title">
+                                        <p class="note">Available variables: {brand#}, {mpn#}, {position#}. Replace # with element number.</p>
+                                        <p class="note">Example: Brake Pad Kit {brand1} {brand2} {mpn1} {mpn2}</p>
+                                    </div>
+                                </div>
+                                <div class="form-group" ng-show="newEntry.job_type == 1">
+                                    <label class="col-xs-2 control-label">Vehicle Make</label>
+                                    <div class="col-xs-10">
+                                        <select required ng-model="newEntry.make" class="form-control">
+                                            <option ng-repeat="make in makes" value="{{make}}">{{make}}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group" ng-show="newEntry.job_type == 2">
+                                    <label class="col-xs-2 control-label"># of Versions</label>
+                                    <div class="col-xs-4">
+                                        <input class="form-control" type="number" min="1" ng-model="newEntry.versions" required>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-xs-2 control-label">Profit %</label>
+                                    <div class="col-xs-4">
+                                        <input class="form-control" type="number" min="2" ng-model="newEntry.profit_pct" required>
+                                    </div>
+                                    <label class="col-xs-2 control-label">Shipping</label>
+                                    <div class="col-xs-4">
+                                        <input class="form-control" type="number" min="0" ng-model="newEntry.shipping" required>
+                                    </div>
+                                </div>
+                            </fieldset>
+                            <div class="form-actions">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <button class="btn btn-primary" type="submit" ng-disabled="submitWait || newEntry.components.length < 2">
+                                            <i class="fa fa-save"></i>
+                                            <span>Submit</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </article>
+    </div>
+
+    <div class="row">
+        <article class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+            <div class="jarviswidget jarviswidget-color-teal">
+                <header>
+                    <span class="widget-icon"> <i class="fa fa-briefcase"></i> </span>
+                    <h2>Current Jobs</h2>
+                </header>
+                <div>
+                    <div class="widget-body no-padding">
+                        <table ng-table="tableParams" show-filter="true" class="table table-hover">
+                            <tbody>
+                            <tr ng-repeat="entry in $data" ng-click="openEntry(entry.id)" class="action-link">
+                                <td title="'Base Title'" filter="{'base_title':'text'}">{{entry.base_title}}</td>
+                                <td title="'Components'" filter="{'components':'text'}">{{entry.components}}</td>
+                                <td class="text-center" title="'Make'">{{entry.make}}</td>
+                                <td class="text-center" title="'Date Queued'" sortable="'queue_date'">{{entry.queue_date}}</td>
+                                <td class="text-center" title="'Progress'">{{entry.progress}}%</td>
+                                <td class="text-center" title="'Kits Found'">{{entry.kits_found}}</td>
+                                <td class="text-center" title="'Kits Listed'">{{entry.kits_listed}}</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </article>
+    </div>
+</section>
+
+<script type="text/javascript">
+    pageSetUp();
+</script>

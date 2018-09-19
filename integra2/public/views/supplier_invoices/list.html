@@ -1,0 +1,33 @@
+<section id="widget-grid">
+    <div class="row">
+        <article class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+            <div class="jarviswidget jarviswidget-color-teal">
+                <header>
+                    <span class="widget-icon"> <i class="fa fa-mail-edit"></i> </span>
+                    <h2>Invoices</h2>
+                </header>
+                <div>
+                    <div class="widget-body no-padding">
+                        <table ng-table="tableParams" show-filter="true" class="table table-striped table-hover">
+                            <tbody>
+                            <tr ng-repeat="entry in $data" ng-click="openEntry(entry.id)" class="action-link">
+                                <td data-title="'Order Date'" sortable="'order_date'" filter="{'order_date':'date'}">{{entry.order_date}}</td>
+                                <td data-title="'Warehouse'" class="text-center">{{entry.supplier_id}}</td>
+                                <td data-title="'Invoice Number'" filter="{'invoice_num':'text'}">{{entry.invoice_num}}</td>
+                                <td data-title="'Order Number'" filter="{'order_num':'text'}">{{entry.order_num}}</td>
+                                <td data-title="'PO Number'" filter="{'po_num':'text'}">{{entry.po_num}}</td>
+                                <td data-title="'Tracking Number'" filter="{'tracking_num':'text'}">{{entry.tracking_num}}</td>
+                                <td data-title="'Total'" class="text-right">{{entry.total}}</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </article>
+    </div>
+</section>
+
+<script type="text/javascript">
+    pageSetUp();
+</script>

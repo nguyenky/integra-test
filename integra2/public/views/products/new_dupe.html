@@ -1,0 +1,51 @@
+<section id="widget-grid">
+
+    <div class="row">
+        <article class="col-xs-12 col-sm-8 col-md-6 col-lg-6">
+            <div class="jarviswidget jarviswidget-color-teal">
+                <header>
+                    <span class="widget-icon"> <i class="fa fa-plus-circle"></i> </span>
+                    <h2>Duplicate Product</h2>
+                </header>
+                <div>
+                    <div class="widget-body">
+                        <form class="form-horizontal">
+                            <fieldset>
+                                <legend ng-show="dupe_sku">New SKU generated: {{dupe_sku}}</legend>
+                                <div class="form-group">
+                                    <label class="control-label col-md-2" for="mpn">Master MPN</label>
+                                    <div class="col-md-10">
+                                        <div class="row">
+                                            <div class="col-sm-12">
+                                                <div class="input-group">
+                                                    <input id="mpn" class="form-control" type="text" ng-enter="search()" ng-model="newEntry.mpn" ng-required="true">
+                                                    <div class="input-group-btn">
+                                                        <button class="btn btn-primary margin-left-10" type="button" ng-click="search()">
+                                                            <i class="fa fa-search"></i>
+                                                            <span>Search</span>
+                                                        </button>
+                                                        <button class="btn btn-success margin-left-10" type="button" ng-click="saveEntry()" ng-show="valid_mpn">
+                                                            <i class="fa fa-save"></i>
+                                                            <span>Duplicate</span>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                                <span class="help-block">{{master_name}}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </fieldset>
+                        </form>
+                        <img class="margin-top-20" ng-show="valid_mpn" src="http://catalog.eocenterprise.com/img/{{newEntry.mpn|nodash}}/cl1"/>
+                    </div>
+                </div>
+            </div>
+        </article>
+    </div>
+
+</section>
+
+<script type="text/javascript">
+    pageSetUp();
+</script>

@@ -1,0 +1,168 @@
+<section id="widget-grid">
+    <div class="row">
+        <article class="col-xs-12 col-sm-10 col-md-10 col-lg-10">
+            <div class="jarviswidget jarviswidget-color-teal">
+                <header>
+                    <span class="widget-icon"> <i class="fa fa-edit"></i> </span>
+                    <h2 ng-hide="newEntry.id">Create Order</h2>
+                </header>
+                <div>
+                    <div class="widget-body">
+                        <form class="form-horizontal" ng-submit="saveEntry(newEntry)">
+                            <fieldset>
+                                <div class="form-group">
+                                    <label class="col-xs-2 control-label">Record Number</label>
+                                    <div class="col-xs-4">
+                                        <input class="form-control" type="text" ng-model="newEntry.record_num" ng-required="true">
+                                    </div>
+                                    <label class="col-xs-2 control-label">Saved Address</label>
+                                    <div class="col-xs-4">
+                                        <select class="form-control" ng-model="savedAddress" ng-change="selectSavedAddress()" ng-options="s.alias for s in savedAddressOptions" ng-required="false">
+                                            <option value=""></option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-xs-2 control-label">Link Order</label>
+                                    <div class="col-xs-4">
+                                        <input class="form-control" type="text" maxlength="100" ng-model="link_record_num" placeholder="Enter record number of existing order to link" ng-blur="linkRecordNum()" ng-enter="linkRecordNum()">
+                                        <p class="note" ng-show="link_error">{{link_error}}</p>
+                                    </div>
+                                    <label class="col-xs-2 control-label">Store</label>
+                                    <div class="col-xs-4">
+                                        <select class="form-control" ng-model="newEntry.merchant" ng-required="true" ng-options="m.name for m in merchants"></select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-xs-2 control-label">Customer's Name</label>
+                                    <div class="col-xs-4">
+                                        <input class="form-control" type="text" maxlength="100" ng-model="newEntry.name" ng-required="true" placeholder="This name will be the ship to recipient">
+                                    </div>
+                                    <label class="col-xs-2 control-label">E-mail Address</label>
+                                    <div class="col-xs-4">
+                                        <input class="form-control" type="email" maxlength="50" ng-model="newEntry.email" placeholder="Tracking information will be sent to this e-mail">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-xs-2 control-label">Ship To Address</label>
+                                    <div class="col-xs-10">
+                                        <input class="form-control" type="text" maxlength="100" ng-model="newEntry.address" ng-required="true" placeholder="Separate multiple lines with semicolon">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-xs-2 control-label">City</label>
+                                    <div class="col-xs-4">
+                                        <input class="form-control" type="text" maxlength="50" ng-model="newEntry.city" ng-required="true">
+                                    </div>
+                                    <label class="col-xs-2 control-label">State</label>
+                                    <div class="col-xs-4">
+                                        <input class="form-control" type="text" maxlength="20" ng-model="newEntry.state" ng-required="true" placeholder="Use 2-letter code for US (FL, CA, TX)">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-xs-2 control-label">ZIP Code</label>
+                                    <div class="col-xs-4">
+                                        <input class="form-control" type="text" maxlength="20" ng-model="newEntry.zip" ng-required="true">
+                                    </div>
+                                    <label class="col-xs-2 control-label">Country</label>
+                                    <div class="col-xs-4">
+                                        <input class="form-control" type="text" maxlength="2" ng-model="newEntry.country" ng-required="true" placeholder="Use 2-letter code (US, CA, JP)">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-xs-2 control-label">Phone Number</label>
+                                    <div class="col-xs-4">
+                                        <input class="form-control" type="tel" maxlength="50" ng-model="newEntry.phone">
+                                    </div>
+                                    <label class="col-xs-2 control-label">Shipping Speed</label>
+                                    <div class="col-xs-4">
+                                        <select class="form-control" ng-model="newEntry.speed" ng-options="s.title for s in speedOptions" ng-required="true"></select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-xs-2 control-label">Sales Agent</label>
+                                    <div class="col-xs-4">
+                                        <input class="form-control" type="text" maxlength="50" ng-model="newEntry.agent" ng-required="true" placeholder="Agent's email address or store name">
+                                    </div>
+                                    <label class="col-xs-2 control-label">Order Total</label>
+                                    <div class="col-xs-4">
+                                        <input class="form-control" type="number" step="0.01" maxlength="8" ng-model="newEntry.total" ng-required="true" placeholder="Amount charged to customer">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-xs-2 control-label">Fulfillment</label>
+                                    <div class="col-xs-4">
+                                        <select class="form-control" ng-model="newEntry.fulfillment" disabled="disabled" ng-options="s.title for s in fulfillmentOptions" ng-required="true"></select>
+                                    </div>
+                                    <label class="col-xs-2 control-label">Status</label>
+                                    <div class="col-xs-4">
+                                        <select class="form-control" ng-model="newEntry.status" ng-options="s.title for s in statusOptions" ng-required="true"></select>
+                                    </div>
+                                </div>
+                            </fieldset>
+                            <fieldset>
+                                <legend>Items</legend>
+                                <div class="form-group">
+                                    <div class="col-xs-2 text-center">
+                                        <button class="btn btn-default" type="button" ng-click="addItem()">
+                                            <i class="fa fa-plus"></i>
+                                            <span>Add More SKUs</span>
+                                        </button>
+                                    </div>
+                                    <label class="col-xs-2 control-label text-center">Quantity</label>
+                                    
+                                    <label class="col-xs-2 control-label text-center">Brand</label>
+
+                                    <!--<label class="col-xs-2 control-label">Supplier</label>-->
+                                    
+                                    <label class="col-xs-1 control-label text-center"></label>
+                                </div>
+                                <div class="form-group" ng-repeat="item in newEntry.items">
+                                    <div class="col-xs-2">
+                                        <input class="form-control" type="text" ng-model="item.sku" placeholder="SKU without prefix" ng-blur="validate()" />
+                                    </div>
+                                    <div class="col-xs-2">
+                                        <input class="form-control" type="number" step="1" ng-model="item.quantity" min="1" ng-required="item.sku">
+                                    </div>
+                                    
+                                    <div class="col-xs-2">
+                                        <input class="form-control" type="text"  ng-model="item.brand"  />
+                                    </div>
+
+
+                                    <!--<div class="col-xs-2">
+                                        <select class="form-control" ng-model="item.selectedSupplier" ng-options="s.name for s in suppliers track by s.id" ng-change="supplierSelected(item)"></select>
+                                    </div>-->
+                                    
+                                    <div class="col-xs-1 text-center">
+                                        <a ng-show="$index" ng-click="deleteItem($index)" title="Delete"><i class="fa fa-2x fa-trash-o"></i></a>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <legend>Remarks</legend>
+                                    <div class="col-xs-12">
+                                        <textarea class="form-control" rows="4" placeholder="Type new history entry here." ng-model="newEntry.remarks" ng-required="true"></textarea>
+                                    </div>
+                                </div>
+                            </fieldset>
+                            <div class="form-actions">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <button class="btn btn-primary" type="submit" ng-disabled="submitWait">
+                                            <i class="fa fa-save"></i>
+                                            <span>Submit</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </article>
+    </div>
+</section>
+
+<script type="text/javascript">
+   
+</script>

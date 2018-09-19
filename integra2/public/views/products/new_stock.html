@@ -1,0 +1,102 @@
+<section id="widget-grid">
+    <div class="row">
+        <article class="col-xs-12 col-sm-10 col-md-8 col-lg-6 col-xl-4">
+            <div class="jarviswidget jarviswidget-color-teal">
+                <header>
+                    <span class="widget-icon"> <i class="fa fa-cubes"></i> </span>
+                    <h2>New Stock</h2>
+                </header>
+                <div>
+                    <div class="widget-body">
+                        <form class="form-horizontal" ng-submit="submitEntry()" ng-disabled="submitWait">
+                            <div class="form-group">
+                                <label class="col-xs-2 control-label">Barcode</label>
+                                <div class="col-xs-10">
+                                    <input id="code" class="form-control input-lg" type="text" ng-model="entry.code" ng-blur="codeChanged()" ng-enter="codeChanged()" placeholder="Scan product barcode" ng-disabled="code_loading || sku_loading">
+                                </div>
+                                <div class="col-xs-10 pull-right" ng-show="code_loading">
+                                    <span class="help-block"><i class="fa fa-spinner fa-spin"></i> Loading...</span>
+                                </div>
+                                <div class="col-xs-10 pull-right" ng-show="result.bad_code">
+                                    <span class="help-block"><i class="fa fa-warning"></i> This is a new barcode. Please scan or enter the SKU below.</span>
+                                </div>
+                            </div>
+                            <div class="form-group" ng-class="{'has-error': result.bad_sku}" ng-show="result.bad_code">
+                                <label class="col-xs-2 control-label">SKU</label>
+                                <div class="col-xs-10">
+                                    <input id="sku" class="form-control input-lg" type="text" ng-model="entry.sku" ng-blur="skuChanged()" ng-enter="skuChanged()" ng-disabled="code_loading || sku_loading">
+                                </div>
+                                <div class="col-xs-10 pull-right" ng-show="sku_loading">
+                                    <span class="help-block"><i class="fa fa-spinner fa-spin"></i> Loading...</span>
+                                </div>
+                                <div class="col-xs-10 pull-right" ng-show="result.bad_sku">
+                                    <span class="help-block"><i class="fa fa-times-circle"></i> Invalid SKU! Try a different number from the packaging.</span>
+                                </div>
+                            </div>
+                            <div class="form-group" ng-show="result.match_sku && !result.match_bin">
+                                <label class="col-xs-2 control-label">Bin</label>
+                                <div class="col-xs-10">
+                                    <input id="bin" class="form-control input-lg" type="text" ng-model="entry.bin" placeholder="Scan bin barcode" ng-enter="enterQuantity()" ng-required="result.match_sku && !result.match_bin">
+                                </div>
+                            </div>
+                            <div class="form-group" ng-show="result.match_sku">
+                                <label class="col-xs-2 control-label">Quantity</label>
+                                <div class="col-xs-10">
+                                    <input id="quantity" class="form-control input-lg" type="number" min="1" max="500" ng-model="entry.quantity" required>
+                                    <span ng-show="invoice_status == 1" class="help-block"><span ng-class="{'text-danger': (expected_quantity != entry.quantity)}">Expected quantity: {{expected_quantity}}</span></span>
+                                </div>
+                            </div>
+                            <div class="form-actions">
+                                <div class="row">
+                                    <div class="col-md-4 pull-left">
+                                        <div class="input-group">
+                                            <input id="invoice_num" class="form-control" type="text" ng-model="invoice_num" ng-blur="invoiceChanged()" ng-enter="invoiceChanged()" placeholder="Invoice number">
+                                            <span class="input-group-addon" ng-click="clearInvoice()" ng-show="invoice_num && (invoice_loading || invoice_status != 0)">
+                                                <i ng-show="!invoice_loading && invoice_status == 1" class="fa fa-check"></i>
+                                                <i ng-show="!invoice_loading && invoice_status == -1" class="fa fa-times"></i>
+                                                <i ng-show="invoice_loading" class="fa fa-spinner fa-spin"></i>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <button class="btn btn-default" type="button" ng-disabled="submitWait" ng-click="freshEntry()">
+                                            <i class="fa fa-eraser"></i>
+                                            <span>Start Over</span>
+                                        </button>
+                                        &nbsp;&nbsp;
+                                        <button class="btn btn-primary" type="submit" ng-disabled="submitWait || !entry.product_id">
+                                            <i class="fa fa-save"></i>
+                                            <span>Submit</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </article>
+
+        <article class="col-xs-12 col-sm-8 col-md-6" ng-show="result.match_sku">
+            <div class="jarviswidget jarviswidget-color-teal">
+                <header>
+                    <span class="widget-icon"> <i class="fa fa-camera"></i> </span>
+                    <h2>Matching Product</h2>
+                </header>
+                <div>
+                    <div class="widget-body">
+                        <div class="jumbotron" style="padding: 10px !important;">
+                            <h1 ng-show="result.match_bin">{{result.match_bin}}</h1>
+                            <p ng-show="result.match_name">{{result.match_brand}} {{result.match_name}} <span ng-show="result.match_sku">({{result.match_sku}})</span></p>
+                        </div>
+                        <img class="product-details-image" ng-src="http://catalog.eocenterprise.com/img/{{result.match_sku|nodash}}/cl1">
+                    </div>
+                </div>
+            </div>
+        </article>
+    </div>
+</section>
+
+<script type="text/javascript">
+    pageSetUp();
+</script>

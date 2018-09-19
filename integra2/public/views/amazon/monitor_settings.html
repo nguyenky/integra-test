@@ -1,0 +1,222 @@
+<section id="widget-grid" data-ng-controller="Controller">
+	<div class="row">
+		<article class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+			<div class="jarviswidget jarviswidget-color-teal">
+				<header>
+					<span class="widget-icon"><i class="fa fa-bar-chart-o"></i></span>
+					<h2>Amazon Monitor Settings</h2>
+                    <div class="widget-toolbar" role="menu" ng-show="false">
+                        <div class="btn-group">
+                            <button class="btn dropdown-toggle btn-xs btn-warning" data-toggle="dropdown">
+                                {{days}} days &nbsp;<i class="fa fa-caret-down"></i>
+                            </button><div class="dropdown-backdrop"></div>
+                            <ul class="dropdown-menu pull-right">
+                                <li>
+                                    <a href="#" ng-click="reloadData(2)">2 days</a>
+                                </li>
+                                <li>
+                                    <a href="#" ng-click="reloadData(5)">5 days</a>
+                                </li>
+                                <li>
+                                    <a href="#" ng-click="reloadData(7)">7 days</a>
+                                </li>
+                                <li>
+                                    <a href="#" ng-click="reloadData(14)">14 days</a>
+                                </li>
+                                <li>
+                                    <a href="#" ng-click="reloadData(21)">21 days</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+				</header>
+				<div>
+					<div class="widget-body chart-container">
+                        <div class="row">
+                            <div class="col-xs-8 col-sm-4">
+                                <input ng-model="q" type="text" class="form-control" placeholder="MPN or ASIN" ng-enter="reloadData(days)">
+                            </div>
+                            <div class="col-xs-1">
+                                <button class="btn btn-primary" ng-click="reloadData(days)">Search</button>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <br/>
+                            <div class="col-xs-12">
+                                <ul ng-show="choices.length">
+                                    <li ng-repeat="c in choices"><a href="#" ng-click="select(c.asin)">{{c.sku}} ({{c.asin}})</a></li>
+                                </ul>
+                                <p ng-show="nohist">No price history yet.</p>
+                                <p ng-show="nomatch">No matching listings.</p>
+                            </div>
+                        </div>
+
+                        <form ng-submit="saveRepricing()" ng-show="competitors.length > 0">
+                            <table class="table table-condensed table-bordered table-striped width-auto">
+                            <thead>
+                                <tr>
+                                    <th class="mid-center">Seller</th>
+                                    <th class="mid-center">Current Price</th>
+                                    <th class="mid-center">Minimum Price</th>
+                                    <th class="mid-center">Strategy</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="c in competitors">
+                                    <td class="text-middle">
+                                        <input ng-model="c.enabled" type="checkbox" ng-disabled="c.seller_id == us"/> {{c.seller_name}}
+                                        <span ng-show="c.fba == 1">(FBA)</span>
+                                        <span ng-show="c.buybox == 1" class="label label-success">Buy Box</span>
+                                    </td>
+                                    <td class="mid-center">
+                                        {{c.latest_price}}<br/>
+                                        <button class="btn btn-xs btn-danger" type="button" ng-show="c.seller_id == us" ng-click="changePrice()">
+                                            <i class="fa fa-pencil"/> Change
+                                        </button>
+                                    </td>
+                                    <td class="mid-center">
+                                        <input ng-show="c.enabled && c.seller_id != us" ng-model="c.min_price" type="text" class="form-control" ng-required="c.enabled">
+                                    </td>
+                                    <td class="mid-center">
+                                        <select ng-show="c.enabled && c.seller_id != us" ng-model="c.strategy" class="form-control" ng-required="c.enabled">
+                                            <option value="1">Match</option>
+                                            <option value="2">Go Under</option>
+                                        </select>
+                                    </td>
+                                </tr>
+                            </tbody>
+                            </table>
+
+                            <button class="btn btn-success" type="submit"><i class="fa fa-save"/> Save Settings</button>&nbsp;&nbsp;&nbsp;
+                            <button class="btn btn-warning" type="button" ng-click="setMinPrice()"><i class="fa fa-dollar"/> Set Min Price For Selected</button>
+                        </form>
+
+                        <div class="chart-container" ng-show="prices.length">
+                            <!--<canvas class="chart chart-line" chart-data="prices" chart-labels="times" chart-series="sellers" chart-options="options"></canvas>-->
+                        </div>
+					</div>
+				</div>
+			</div>
+		</article>
+	</div>
+</section>
+
+<script type="text/javascript">
+	pageSetUp();
+
+    function Controller ($scope, $http, $window)
+    {
+        $scope.options = {
+            elements: {
+                line: {
+                    fill: false,
+                    lineTension: 0
+                }
+            },
+            legend: {
+                display: true
+            }
+        };
+
+        $scope.us = '';
+        $scope.nomatch = false;
+        $scope.nohist = false;
+        $scope.choices = [];
+        $scope.prices = [];
+        $scope.competitors = [];
+        $scope.times = [];
+        $scope.sellers = [];
+        $scope.q = '';
+        $scope.days = 14;
+
+
+        $scope.select = function(c) {
+            $scope.q = c;
+            $scope.reloadData($scope.days);
+        };
+
+        $scope.setMinPrice = function() {
+            var price = $window.prompt('Enter minimum price');
+            if (!price) return;
+
+            price = price.replace(/[^0-9.]/g, '');
+            if (!price) return;
+
+            for (var i = 0; i < $scope.competitors.length; i++) {
+                if (!$scope.competitors[i].enabled) continue;
+
+                $scope.competitors[i].min_price = price;
+            }
+        };
+
+        $scope.changePrice = function() {
+            var price = $window.prompt('Enter new price');
+            if (!price) return;
+
+            price = price.replace(/[^0-9.]/g, '');
+            if (!price) return;
+
+            $http.post('/api/amazon/change_price/' + $scope.q, {price: price})
+                    .success(function (data) {
+                        if (data.success) $scope.$popOk('Price change successfully queued for tonight');
+                        else $scope.$popError('Error while changing price');
+                    })
+                    .error(function () {
+                        $scope.$popError('Error while changing price');
+                    })
+        };
+
+        $scope.saveRepricing = function() {
+            $http.put('/api/amazon/monitor_settings/' + $scope.q, {competitors: $scope.competitors})
+                    .success(function (data) {
+                        if (data.success) $scope.$popOk('Settings saved successfully');
+                        else $scope.$popError('Error while updating settings');
+                    })
+                    .error(function () {
+                        $scope.$popError('Error while updating settings');
+                    })
+        };
+
+        $scope.reloadData = function(days) {
+            if (!$scope.q) return;
+
+            $scope.days = days;
+
+            $scope.nomatch = false;
+            $scope.nohist = false;
+
+            $http.get('/api/amazon/monitor_settings/' + $scope.q + '?days=' + days)
+                    .success(function (data) {
+                        $scope.prices = [];
+                        $scope.times = [];
+                        $scope.sellers = [];
+                        $scope.competitors = [];
+
+                        if (data.choices) {
+                            $scope.choices = data.choices;
+                            return;
+                        }
+                        else $scope.choices = [];
+
+                        if (data.nomatch) {
+                            $scope.nomatch = true;
+                            return;
+                        }
+
+                        if (!data.prices.length) {
+                            $scope.nohist = true;
+                            return;
+                        }
+
+                        $scope.sellers = data.sellers;
+                        $scope.times = data.times;
+                        $scope.prices = data.prices;
+                        $scope.competitors = data.competitors;
+                        $scope.us = data.us;
+                    })
+                    .error(function () {
+                        $scope.$popError('Unable to load data');
+                    });
+        };
+    }
+</script>

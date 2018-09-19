@@ -1,0 +1,304 @@
+<section id="widget-grid" data-ng-controller="Controller">
+	<div class="row">
+		<article class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+			<div class="jarviswidget jarviswidget-color-teal">
+				<header>
+					<span class="widget-icon"><i class="fa fa-bar-chart-o"></i></span>
+					<h2>Amazon - Monitor Settings Edited</h2>
+                    <div class="widget-toolbar" role="menu">
+                        <div class="btn-group">
+                            <button class="btn dropdown-toggle btn-xs btn-warning" data-toggle="dropdown">
+                                {{days}} days <i class="fa fa-caret-down"></i>
+                            </button><div class="dropdown-backdrop"></div>
+                            <ul class="dropdown-menu pull-right">
+                                <li>
+                                    <a href="#" ng-click="reloadData(2)">2 days</a>
+                                </li>
+                                <li>
+                                    <a href="#" ng-click="reloadData(5)">5 days</a>
+                                </li>
+                                <li>
+                                    <a href="#" ng-click="reloadData(7)">7 days</a>
+                                </li>
+                                <li>
+                                    <a href="#" ng-click="reloadData(14)">14 days</a>
+                                </li>
+                                <li>
+                                    <a href="#" ng-click="reloadData(21)">21 days</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+				</header>
+				<div>
+					<div class="widget-body chart-container">
+                        <canvas class="chart chart-bar" chart-data="edited" chart-labels="edited_x" chart-series="edited_u" chart-options="options"></canvas>
+					</div>
+				</div>
+			</div>
+		</article>
+	</div>
+
+    <div class="row">
+        <article class="col-xs-12 col-sm-8 col-md-6 col-lg-6">
+            <div class="jarviswidget jarviswidget-color-teal">
+                <header>
+                    <span class="widget-icon"><i class="fa fa-bar-chart-o"></i></span>
+                    <h2>Amazon - Monitor Edited Statistics</h2>
+                </header>
+                <div>
+                    <div class="widget-body no-padding">
+                        <table class="table table-condensed table-bordered table-striped">
+                            <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>User</th>
+                                <th class="text-right">Average</th>
+                                <th class="text-right">Variance</th>
+                                <th class="text-right">Total</th>
+                                <th class="text-right">Min</th>
+                                <th class="text-right">Max</th>
+                                <th class="text-right">Goal Reach %</th>
+                                <th class="text-right">Score</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr ng-repeat="s in stats_edited">
+                                <td>{{s.date}}</td>
+                                <td>{{s.user}}</td>
+                                <td class="text-right">{{s.average}}</td>
+                                <td class="text-right">{{s.variance}}</td>
+                                <td class="text-right">{{s.total}}</td>
+                                <td class="text-right">{{s.min}}</td>
+                                <td class="text-right">{{s.max}}</td>
+                                <td class="text-right">{{s.hit_pct}}</td>
+                                <td class="text-right">{{s.score}}</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </article>
+    </div>
+
+
+    <div class="row">
+        <article class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+            <div class="jarviswidget jarviswidget-color-teal">
+                <header>
+                    <span class="widget-icon"><i class="fa fa-bar-chart-o"></i></span>
+                    <h2>Amazon - Listings Created</h2>
+                    <div class="widget-toolbar" role="menu">
+                        <div class="btn-group">
+                            <button class="btn dropdown-toggle btn-xs btn-warning" data-toggle="dropdown">
+                                {{days}} days <i class="fa fa-caret-down"></i>
+                            </button><div class="dropdown-backdrop"></div>
+                            <ul class="dropdown-menu pull-right">
+                                <li>
+                                    <a href="#" ng-click="reloadData(2)">2 days</a>
+                                </li>
+                                <li>
+                                    <a href="#" ng-click="reloadData(5)">5 days</a>
+                                </li>
+                                <li>
+                                    <a href="#" ng-click="reloadData(7)">7 days</a>
+                                </li>
+                                <li>
+                                    <a href="#" ng-click="reloadData(14)">14 days</a>
+                                </li>
+                                <li>
+                                    <a href="#" ng-click="reloadData(21)">21 days</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </header>
+                <div>
+                    <div class="widget-body chart-container">
+                        <canvas class="chart chart-bar" chart-data="created" chart-labels="created_x" chart-series="created_u" chart-options="options"></canvas>
+                    </div>
+                </div>
+            </div>
+        </article>
+    </div>
+
+    <div class="row">
+        <article class="col-xs-12 col-sm-8 col-md-6 col-lg-6">
+            <div class="jarviswidget jarviswidget-color-teal">
+                <header>
+                    <span class="widget-icon"><i class="fa fa-bar-chart-o"></i></span>
+                    <h2>Amazon - Listings Created Statistics</h2>
+                </header>
+                <div>
+                    <div class="widget-body no-padding">
+                        <table class="table table-condensed table-bordered table-striped">
+                            <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>User</th>
+                                <th class="text-right">Average</th>
+                                <th class="text-right">Variance</th>
+                                <th class="text-right">Total</th>
+                                <th class="text-right">Min</th>
+                                <th class="text-right">Max</th>
+                                <th class="text-right">Goal Reach %</th>
+                                <th class="text-right">Score</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr ng-repeat="s in stats_created">
+                                <td>{{s.date}}</td>
+                                <td>{{s.user}}</td>
+                                <td class="text-right">{{s.average}}</td>
+                                <td class="text-right">{{s.variance}}</td>
+                                <td class="text-right">{{s.total}}</td>
+                                <td class="text-right">{{s.min}}</td>
+                                <td class="text-right">{{s.max}}</td>
+                                <td class="text-right">{{s.hit_pct}}</td>
+                                <td class="text-right">{{s.score}}</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </article>
+    </div>
+
+</section>
+
+<script type="text/javascript">
+	pageSetUp();
+
+    function Controller ($scope, $http, $window)
+    {
+        $window.scope = $scope;
+        $scope.options = {
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        beginAtZero:true
+                    }
+                }]
+            }
+        };
+
+        $scope.edited = [];
+        $scope.edited_x = [];
+        $scope.edited_u = [];
+        $scope.stats_edited = [];
+
+        $scope.created = [];
+        $scope.created_x = [];
+        $scope.created_u = [];
+        $scope.stats_created = [];
+
+        $scope.reloadData = function(days) {
+            $scope.days = days;
+
+            $http.get('/api/amazon/graph?days=' + days)
+                    .success(function (data) {
+                        var now = new Date();
+                        var utc = now.getTime() + (now.getTimezoneOffset() * 60000);
+                        now = new Date(utc + (3600000*-4));
+
+                        $scope.edited = [];
+                        $scope.edited_x = [];
+                        $scope.edited_u = [];
+
+                        $scope.stats_edited = data.stats_edited;
+
+                        for (var i = 0; i < data.edited.length; i++) {
+                            if ($scope.edited_u.indexOf(data.edited[i].u) === -1)
+                                $scope.edited_u.push(data.edited[i].u);
+                        }
+
+                        for (var i = 0; i < $scope.edited_u.length; i++) {
+                            var current = [];
+
+                            for (var h = $scope.days * 24; h >= 0; h--) {
+                                var cur = new Date();
+                                cur.setHours(now.getHours() - h);
+
+                                if (cur.getHours() < 7 || cur.getHours() > 19 || cur.getDay() == 0)
+                                    continue;
+
+                                var mm = (cur.getMonth() + 1).toString();
+                                var dd = cur.getDate().toString();
+                                var hh = cur.getHours().toString();
+
+                                var ch = [mm.length == 1 ? '0' + mm : mm, '/', dd.length == 1 ? '0' + dd : dd, ' ', hh.length == 1 ? '0' + hh : hh, ':00'].join('');
+
+                                if ($scope.edited_x.indexOf(ch) === -1)
+                                    $scope.edited_x.push(ch);
+
+                                var val = 0;
+
+                                for (var j = 0; j < data.edited.length; j++) {
+                                    if (data.edited[j].u == $scope.edited_u[i] && data.edited[j].d == ch) {
+                                        val = data.edited[j].c;
+                                        break;
+                                    }
+                                }
+
+                                current.push(val);
+                            }
+
+                            $scope.edited.push(current);
+                        }
+
+
+                        $scope.created = [];
+                        $scope.created_x = [];
+                        $scope.created_u = [];
+
+                        $scope.stats_created = data.stats_created;
+
+                        for (var i = 0; i < data.created.length; i++) {
+                            if ($scope.created_u.indexOf(data.created[i].u) === -1)
+                                $scope.created_u.push(data.created[i].u);
+                        }
+
+                        for (var i = 0; i < $scope.created_u.length; i++) {
+                            var current = [];
+
+                            for (var h = $scope.days * 24; h >= 0; h--) {
+                                var cur = new Date();
+                                cur.setHours(now.getHours() - h);
+
+                                if (cur.getHours() < 7 || cur.getHours() > 19 || cur.getDay() == 0)
+                                    continue;
+
+                                var mm = (cur.getMonth() + 1).toString();
+                                var dd = cur.getDate().toString();
+                                var hh = cur.getHours().toString();
+
+                                var ch = [mm.length == 1 ? '0' + mm : mm, '/', dd.length == 1 ? '0' + dd : dd, ' ', hh.length == 1 ? '0' + hh : hh, ':00'].join('');
+
+                                if ($scope.created_x.indexOf(ch) === -1)
+                                    $scope.created_x.push(ch);
+
+                                var val = 0;
+
+                                for (var j = 0; j < data.created.length; j++) {
+                                    if (data.created[j].u == $scope.created_u[i] && data.created[j].d == ch) {
+                                        val = data.created[j].c;
+                                        break;
+                                    }
+                                }
+
+                                current.push(val);
+                            }
+
+                            $scope.created.push(current);
+                        }
+                    })
+                    .error(function () {
+                        $scope.$popError('Unable to load graph data');
+                    });
+        };
+
+        $scope.reloadData(2);
+    }
+</script>

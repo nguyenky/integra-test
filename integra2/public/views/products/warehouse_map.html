@@ -1,0 +1,242 @@
+<section id="widget-grid">
+    <div class="row">
+        <article class="col-xs-12 col-sm-8 col-md-6">
+            <div class="jarviswidget jarviswidget-color-teal">
+                <header>
+                    <span class="widget-icon"> <i class="fa fa-edit"></i> </span>
+                    <h2>Warehouse Map</h2>
+                    <button class="btn btn-default pull-right" data-toggle="modal" data-target="#registerWarehouse" ng-if="!data.rows.length">Add Warehouse</button>
+                    <button class="btn btn-default pull-right" data-toggle="modal" data-target="#updateWarehouse" ng-if="data.rows.length">Update Warehouse</button>
+                </header>
+                <div>
+                    <div class="widget-body">
+                        <form class="header-search pull-right">
+                            <input type="text" ng-model="keyword" placeholder="Search warehouse" ng-enter="search()">
+                            <button type="button" ng-click="search()" ng-enabled="keyword.length">
+                                <i class="fa fa-search"></i>
+                            </button>
+                        </form>
+
+                        <table class="table table-condensed">
+                            <tbody>
+                            <tr class="map" ng-repeat="row in data.rows">
+                                <td ng-repeat="cell in row">
+                                    <button ng-disabled="!cell.bins.length" ng-show="cell.label" class="btn" ng-class="{'btn-warning': cell.filtered, 'btn-primary': !cell.filtered && cell.bins.length && hasEmptyBin(cell), 'btn-success': !cell.filtered && cell.bins.length && !hasEmptyBin(cell)}" data-toggle="modal" data-target="#binModal" ng-click="$parent.$parent.selected=cell">
+                                        {{cell.label}}
+                                    </button>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </article>
+    </div>
+</section>
+
+<div class="modal fade" id="updateWarehouse" role="dialog">
+    <div class="modal-dialog">
+      <div class="modal-content">
+
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title">Update Warehouse</h4>
+        </div>
+
+        <div class="modal-body">
+          <form class="form-horizontal" name="formUpdate">
+            <input type="hidden" name="update.warehouse_id" value="update.id">
+            <div class="form-group">
+                <label class="control-label">Supplier</label>
+                <select name="supplier" ng-model="update.supplier_id" ng-required ="true">
+                    <option ng-repeat="d in dropdown" value="{{d.id}}" class="form-control" >{{d.name}}</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="control-label">Warehouse Name</label>
+                <input type="text" name="name" class="form-control" ng-model="update.name" ng-required ="true">
+            </div>
+
+            <div class="form-group">
+                <p style="color: red;" ng-show="error">Code is not available</p>
+                <label class="control-label">Warehouse Code</label>
+                <input type="text" name="code" class="form-control" ng-model="update.code" ng-required ="true">
+            </div>
+
+            <div class="form-group">
+                <label class="control-label">Warehouse City</label>
+                <input type="text" name="city" class="form-control" ng-model="update.city" ng-required ="true">
+            </div>
+
+            <div class="form-group">
+                <label class="control-label">Warehouse State</label>
+                <input type="text" name="state" class="form-control" ng-model="update.state" ng-required ="true">
+            </div>
+
+            <div class="form-group">
+                <label class="control-label">Warehouse Country</label>
+                <input type="text" name="country" class="form-control" ng-model="update.country">
+            </div>
+
+            <div class="form-group">
+                <label class="control-label">Warehouse Map Passageways (aisle/isle)</label>
+                <input type="text" name="map_passage" class="form-control" ng-model="update.map_passage">
+            </div>
+
+            <div class="form-group">
+                <label class="control-label">Warehouse Map Columns</label>
+                <input type="text" name="map_col" class="form-control" ng-model="update.map_col">
+            </div>
+
+            <div class="form-group">
+                <label class="control-label">Warehouse Map Rows</label>
+                <input type="text" name="map_height" class="form-control" ng-model="update.map_height">
+            </div>
+
+            <div class="form-group">
+                <input type="checkbox" name="is_active" ng-model="update.is_active"> Active ?
+                <input type="checkbox" name="has_truck" ng-model="update.has_truck"> Truck ?
+                <input type="checkbox" name="can_drop_ship" ng-model="update.can_drop_ship"> Can drop ship ?
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-default" ng-click="submitUpdate(update)" ng-disabled="formUpdate.$invalid">Submit</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+          </form>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+<div class="modal fade" id="registerWarehouse" role="dialog">
+    <div class="modal-dialog">
+      <div class="modal-content">
+
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title">Create new Warehouse</h4>
+        </div>
+
+        <div class="modal-body">
+          <form class="form-horizontal" name="formStore">
+            <div class="form-group">
+                <label class="control-label">Supplier</label>
+                <select name="supplier" ng-model="store.supplier_id" ng-required ="true">
+                    <option ng-repeat="d in dropdown" value="{{d.id}}" class="form-control" >{{d.name}}</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="control-label">Warehouse Name</label>
+                <input type="text" name="name" class="form-control" ng-model="store.name" ng-required ="true">
+            </div>
+
+            <div class="form-group">
+                <p style="color: red;" ng-show="error">Code is not available</p>
+                <label class="control-label">Warehouse Code</label>
+                <input type="text" name="code" class="form-control" ng-model="store.code" ng-required ="true">
+            </div>
+
+            <div class="form-group">
+                <label class="control-label">Warehouse City</label>
+                <input type="text" name="city" class="form-control" ng-model="store.city" ng-required ="true">
+            </div>
+
+            <div class="form-group">
+                <label class="control-label">Warehouse State</label>
+                <input type="text" name="state" class="form-control" ng-model="store.state" ng-required ="true">
+            </div>
+
+            <div class="form-group">
+                <label class="control-label">Warehouse Country</label>
+                <input type="text" name="country" class="form-control" ng-model="store.country">
+            </div>
+
+            <div class="form-group">
+                <label class="control-label">Warehouse Map Passage</label>
+                <input type="text" name="map_passage" class="form-control" ng-model="update.map_passage">
+            </div>
+
+            <div class="form-group">
+                <label class="control-label">Warehouse Map Column</label>
+                <input type="text" name="map_col" class="form-control" ng-model="update.map_col">
+            </div>
+
+            <div class="form-group">
+                <label class="control-label">Warehouse Map Row</label>
+                <input type="text" name="map_height" class="form-control" ng-model="update.map_height">
+            </div>
+
+            <div class="form-group">
+                <input type="checkbox" name="is_active" ng-model="store.is_active"> Active ?
+                <input type="checkbox" name="has_truck" ng-model="store.has_truck"> Truck ?
+                <input type="checkbox" name="can_drop_ship" ng-model="store.can_drop_ship"> Can drop ship ?
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-default" ng-click="submitRegister(store)" ng-disabled="formStore.$invalid || formStore.$pristine">Submit</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+          </form>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+
+<div class="modal fade in" id="binModal" tabindex="-1" role="dialog" aria-labelledby="binModalLabel" aria-hidden="false">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-body">
+                <table class="table">
+                    <tr class="bin-cell">
+                        <th class="text-center"><h4><strong>Bin</strong></h4></th>
+                        <th class="text-center"><h4><strong>Item</strong></h4></th>
+                        <th class="text-right"><h4><strong>Quantity</strong></h4></th>
+                        <th class="text-right"><h4><strong>Actions</strong></h4></th>
+                    </tr>
+                    <tr ng-repeat="bin in selected.bins" class="bin-cell">
+                        <td class="text-center"><h1>{{bin.bin}}</h1></td>
+                        <td>
+                            <div class="media">
+                                <img class="pull-left media-object map-tn" alt="{{bin.sku}}" ng-src="http://catalog.eocenterprise.com/img/{{bin.sku|nodash}}/cl1-tneb">
+                                <div class="media-body">
+                                    <h4 class="media-heading">{{bin.sku}}</h4>
+                                    {{bin.brand}} {{bin.name}}
+                                </div>
+                            </div>
+                        <td class="text-right"><h1>{{bin.quantity}}</h1></td>
+                        <td class="text-right">
+                            <div>
+                                <button class="btn btn-default" ng-click="recount(bin)">Recount</button>
+                                <button class="btn btn-default" ng-click="relocate(bin)">Relocate</button>
+                                <button class="btn btn-default" ng-click="bin.showCodes = (bin.showCodes?0:1)">Codes</button>
+                                <button class="btn btn-default" ng-click="details(bin)">Details</button>
+                            </div>
+                            <div class="animated fadeInDown fast" ng-show="bin.showCodes">
+                                <br/>
+                                <div class="form-group" ng-repeat="code in bin.codes">
+                                    <span class="font-md">{{code}}</span>&nbsp;&nbsp;
+                                    <a ng-click="deleteCode(bin, $index)" title="Delete"><i class="fa fa-2x fa-trash-o"></i></a>
+                                </div>
+                                <div class="form-group">
+                                    <button ng-click="addCode(bin)" class="btn btn-primary" type="button" ng-disabled="submitWait">
+                                        <i class="fa fa-plus"></i>
+                                        Add New Code
+                                    </button>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    pageSetUp();
+</script>

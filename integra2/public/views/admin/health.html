@@ -1,0 +1,179 @@
+<section id="widget-grid" data-ng-controller="Controller">
+	<div class="row">
+		<article class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+			<div class="jarviswidget jarviswidget-color-teal">
+				<header>
+					<span class="widget-icon"><i class="fa fa-cogs"></i></span>
+					<h2>System Health</h2>
+				</header>
+				<div>
+					<div class="widget-body">
+						<table class="table table-striped table-hover table-system-health">
+                            <thead>
+                            <tr>
+                                <th>Monitor</th>
+                                <th>Status</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr ng-repeat="monitor in monitors">
+                                <td>
+                                    <a ng-click="refreshMonitor(monitor)" href="#" class="text-{{monitor.status}}">{{monitor.name}}</a>
+                                </td>
+                                <td>
+                                    <span ng-show="monitor.status" class="text-{{monitor.status}}">
+                                        <span ng-show="monitor.status=='success'">
+
+                                        <i class="fa fa-fw fa-check-circle"></i> {{monitor.remarks}}
+                                        <!-- <span ng-hide="monitor.id =='ebay_api_call_counters'">{{monitor.remarks}}</span>
+                                        <a href="" class="text-success" ng-click="showDetail()" ng-show="monitor.id =='ebay_api_call_counters'">{{monitor.remarks}}</a> -->
+                                        </span>
+                                        <span ng-show="monitor.status=='warning'"><i class="fa fa-fw fa-exclamation-circle"></i> {{monitor.remarks}}</span>
+                                        <span ng-show="monitor.status=='danger'"><i class="fa fa-fw fa-times-circle"></i> {{monitor.remarks}}</span>
+                                    </span>
+                                    <span ng-hide="monitor.status">
+                                        <i class="fa fa-fw fa-spin fa-spinner"></i> {{monitor.remarks}}
+                                    </span>
+                                    <span ng-show="monitor.name == 'Ebay Api Call Counters' && monitor.status">
+                                          || 
+                                        <a href="" ng-click="showDetail()">
+                                        <span class=""> Click Here To View Details </span>
+                                        </a>
+                                    </span>
+
+                                    <div ng-show="statusDetail && monitor.name == 'Ebay Api Call Counters' && monitor.status" class="detail-counter">
+                                        <div ng-show="contentDetail">
+                                            <!-- <div ng-repeat="detail in dataDetail" class="text-success">
+                                                {{detail.feature_name}} | {{detail.token}} | {{detail.total}} 
+                                            </div> -->
+                                            <table class="table table-striped table-hover sup-table">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Feature Name</th>
+                                                        <th>Token User</th>
+                                                        <th>Total call in 24 hours</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr ng-repeat="detail in dataDetail | orderBy:'-total'">
+                                                        <td class="text-success">
+                                                            {{detail.feature_name}}
+                                                        </td>
+                                                        <td class="text-success">
+                                                            {{detail.token}}
+                                                        </td>
+                                                        <td class="text-success">
+                                                            {{detail.total}}
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <span ng-show="!contentDetail" class="text-center">
+                                            <i class="fa fa-fw fa-spin fa-spinner"></i> 
+                                        </span>
+                                    </div>
+                                </td>
+                            </tr>
+                            </tbody>
+						</table>
+                        <!-- <div ng-show="a">
+                            <table class="table table-striped table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Feature Name</th>
+                                        <th>Ebay Service Name</th>
+                                        <th>Token User</th>
+                                        <th>Total call in 24 hours</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    
+                                </tbody>
+                            </table>
+                        </div> -->
+					</div>
+				</div>
+			</div>
+		</article>
+	</div>
+</section>
+
+<script type="text/javascript">
+	pageSetUp();
+
+    function Controller ($scope, $http)
+    {
+        $scope.monitors =
+        [
+            {id: 'ebay_monitor', name: 'eBay Monitor', status: null, remarks: 'Loading...'},
+            {id: 'amazon_scraper', name: 'Amazon Scraper', status: null, remarks: 'Loading...'},
+            {id: 'ebay_inventory', name: 'eBay Inventory', status: null, remarks: 'Loading...'},
+            {id: 'imc_bulk_order_morning', name: 'W1 Bulk Order (Morning)', status: null, remarks: 'Loading...'},
+            {id: 'imc_bulk_order_noon', name: 'W1 Bulk Order (Noon)', status: null, remarks: 'Loading...'},
+            {id: 'ssf_bulk_order', name: 'W2 Bulk Order', status: null, remarks: 'Loading...'},
+            {id: 'ebay_api_call_counters', name: 'Ebay Api Call Counters', status: null, remarks: 'Loading...'}
+        ];
+
+        $scope.refreshMonitor = function(monitor)
+        {
+            monitor.status = null;
+            monitor.remarks = 'Loading...';
+
+            $http.get('/api/health/' + monitor.id)
+                    .success(function(data)
+                    {
+                        monitor.status = data.status;
+                        monitor.remarks = data.remarks;
+                    })
+                    .error(function()
+                    {
+                        monitor.status = 'danger';
+                        monitor.remarks = 'Unable to load status';
+                    });
+        };
+        $scope.statusDetail = false;
+        $scope.dataDetail =[];
+        $scope.showDetail = function(){
+            if($scope.statusDetail){
+                $scope.statusDetail = false;
+            }else{
+                $scope.statusDetail = true;
+                $scope.contentDetail = false;
+                $scope.getDetailCounters();
+            }
+        };
+
+        for (var i = 0; i < $scope.monitors.length; i++)
+        {
+            $scope.refreshMonitor($scope.monitors[i]);
+        }
+        $scope.getDetailCounters = function(){
+            if($scope.dataDetail.length){
+                $scope.contentDetail = true;
+            }else{
+                $http.get('/api/health/ebay_api_call_counters/detail')
+                .success(function(data)
+                {
+                    $scope.dataDetail = data.data;
+                    $scope.contentDetail = true;
+                })
+                .error(function()
+                {
+                });
+            }
+            
+        }
+        //---------
+        $scope.a = false;
+        $scope.addDetail = function(){
+            if ($scope.a) {
+                $scope.a = false;
+            }else{
+                $scope.a = true;
+            }
+        }
+
+
+    }
+</script>

@@ -1,0 +1,154 @@
+<style type="text/css">
+
+@media (min-width: 1200px) {
+    /*.chart-container {
+      position: relative;
+      margin: auto;
+      height: 60vh;
+    }*/
+
+    .chart-container {
+        height: 520px !important;
+    }
+
+    #chart {
+        height: 500px !important;
+        margin-top: 15px !important;
+    }
+}
+
+</style>
+<section id="widget-grid" data-ng-controller="Controller">
+	<div class="row">
+		<article class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+			<div class="jarviswidget jarviswidget-color-teal">
+				<header>
+					<span class="widget-icon"><i class="fa fa-bar-chart-o"></i></span>
+					<h2>Shipping - Stamps Printed Today</h2>
+                    
+				</header>
+				<div>
+					<div class="widget-body chart-container">
+                        <canvas class="chart chart-bar" chart-data="created" chart-labels="created_x" 
+                        chart-series="created_u" chart-options="options" id="chart"></canvas>
+					</div>
+				</div>
+			</div>
+		</article>
+	</div>
+
+    <div class="row">
+        <article class="col-xs-12 col-sm-8 col-md-6 col-lg-6">
+            <div class="jarviswidget jarviswidget-color-teal">
+                <header>
+                    <span class="widget-icon"><i class="fa fa-bar-chart-o"></i></span>
+                    <h2>Shipping - Stamps Printed Statistics</h2>
+                </header>
+                <div>
+                    <div class="widget-body no-padding">
+                        <table class="table table-condensed table-bordered table-striped table-hover">
+                            <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>User</th>
+                                <th class="text-right">Average</th>
+                                <th class="text-right">Variance</th>
+                                <th class="text-right">Total</th>
+                                <th class="text-right">Min</th>
+                                <th class="text-right">Max</th>
+                                <th class="text-right">Goal Reach %</th>
+                                <th class="text-right">Score</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr ng-repeat="s in stats">
+                                <td>{{s.date}}</td>
+                                <td>{{s.user}}</td>
+                                <td class="text-right">{{s.average}}</td>
+                                <td class="text-right">{{s.variance}}</td>
+                                <td class="text-right">{{s.total}}</td>
+                                <td class="text-right">{{s.min}}</td>
+                                <td class="text-right">{{s.max}}</td>
+                                <td class="text-right">{{s.hit_pct}}</td>
+                                <td class="text-right">{{s.score}}</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </article>
+    </div>
+</section>
+
+
+
+<script type="text/javascript">
+	//pageSetUp();
+
+    function Controller ($scope, $http, $interval)
+    {
+         
+        window.scope = $scope;
+        $scope.options = {
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        beginAtZero:true
+                    }
+                }]
+            },
+            legend: {
+                display: true,
+                labels: {
+                    fontColor: 'black',
+                    fontStyle: 'bold',
+                    padding: 5
+                }
+            },
+            responsive: true
+        };
+
+        $scope.edited = [];
+        $scope.edited_x = [];
+        $scope.edited_u = [];
+
+        $scope.created = [];
+        $scope.created_x = [];
+        $scope.created_u = [];
+
+        $scope.stats = [];
+
+        $scope.reloadData = function() {
+            $scope.days = 1;
+
+            $http.get('/api/orders/realtimeShip')
+                    .success(function (data) {
+                        
+                        $scope.created = [];
+                        $scope.created_x = [];
+                        $scope.created_u = [];
+
+                        $scope.stats = data.stats;
+
+                        $scope.created = data.chartData;
+                        $scope.created_u = data.series;
+                        $scope.created_x = data.axisX;
+
+                        
+                    })
+                    .error(function () {
+                        $scope.$popError('Unable to load graph data');
+                    });
+        };
+
+        $scope.reloadData();
+
+        var theInterval = $interval(function(){
+              $scope.reloadData();
+        }.bind(this), 10*60*1000);    
+
+
+        
+    }
+</script>

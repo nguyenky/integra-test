@@ -1,0 +1,143 @@
+<section id="widget-grid">
+    <div class="row">
+        <article class="col-xs-12 col-sm-10 col-md-10 col-lg-10">
+            <div class="jarviswidget jarviswidget-color-teal">
+                <header>
+                    <span class="widget-icon"> <i class="fa fa-edit"></i> </span>
+                    <h2 ng-hide="newEntry.id">Create New Kit</h2>
+                    <h2 ng-show="newEntry.id">Update Kit: {{newEntry.sku}}</h2>
+                </header>
+                <div>
+                    <div class="widget-body">
+                        <form class="form-horizontal" ng-submit="uploadKits(kit)" name="myForm">
+                            <fieldset>
+                                <div class="form-group">
+                                    <div class="col-xs-3 col-sm-3 col-md-3">
+                                        Upload file CSV
+                                    </div>
+                                    <div class="col-xs-9 col-sm-9 col-md-9">
+                                        <input type="file" ngf-select ng-model="kit" name="file"    
+                                                     accept="csv/*"  required placeholder="Kits CSV file" 
+                                                     ngf-model-invalid="errorFile">
+                                              <i ng-show="myForm.file.$error.required">*required</i><br>
+                                        
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="col-xs-9 col-sm-9 col-md-9">
+                                    </div>
+                                    <div class="col-xs-3 col-sm-3 col-md-3">
+                                        <button class="form-control" type="submit"> Submit </button>
+                                    </div>
+                                </div>
+
+                            </fieldset>
+                        </form>
+                        <form class="form-horizontal" ng-submit="saveEntry(newEntry.id, newEntry)">
+                            <fieldset>
+                                <div class="form-group">
+                                    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                                        <input class="form-control" type="text" ng-model="newEntry.name" ng-required="true" placeholder="Input name of kit">
+                                    </div>
+                                </div>
+                            </fieldset>
+                            <fieldset>
+                                <legend>Components</legend>
+                                <div class="form-group">
+                                    <div class="col-xs-8 col-sm-8 col-md-8 col-lg-8 text-center">
+                                        <button class="btn btn-default" type="button" ng-click="addComponent()">
+                                            <i class="fa fa-plus"></i>
+                                            <span>Add More SKUs</span>
+                                        </button>
+                                    </div>
+                                    <label class="col-xs-3 col-sm-3 col-md-3 col-lg-3 control-label text-center">Quantity</label>
+                                </div>
+                                <div class="form-group" ng-repeat="component in newEntry.components">
+                                    <div class="col-xs-8 col-sm-8 col-md-8 col-lg-8">
+                                        <input class="form-control" type="text" ng-model="component.sku" placeholder="Input SKU of component">
+                                    </div>
+                                    <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
+                                        <input class="form-control" type="number" ng-model="component.pivot.quantity" min="1">
+                                    </div>
+                                    <div class="col-xs-1 col-sm-1 col-md-1 col-lg-1 text-center">
+                                        <a ng-show="$index" ng-click="deleteComponent($index)" title="Delete"><i class="fa fa-2x fa-trash-o"></i></a>
+                                    </div>
+                                </div>
+                            </fieldset>
+                            <div class="form-actions">
+                                <div class="row">
+                                    <div class="col-md-6 text-left">
+                                        <span ng-show="newSku">
+                                            New Kit SKU: <strong>{{newSku}}</strong>
+                                        </span>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <button class="btn btn-default" type="button" ng-click="freshEntry()" ng-disabled="submitWait" ng-show="newEntry.id">
+                                            <span>Cancel Edit</span>
+                                        </button>
+                                        <button class="btn btn-primary" type="submit" ng-disabled="submitWait">
+                                            <i class="fa fa-save"></i>
+                                            <span>Submit</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </article>
+    </div>
+
+    <div class="row">
+        <article class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+            <div class="jarviswidget jarviswidget-color-teal">
+                <header>
+                    <span class="widget-icon"> <i class="fa fa-briefcase"></i> </span>
+                    <h2>Current Kits</h2>
+                </header>
+                <div>
+                    <div class="widget-body no-padding">
+                        <table ng-table="tableParams" show-filter="true" class="table table-hover">
+                            <tbody ng-repeat="entry in $data">
+                            <tr class="group-parent">
+                                <td title="'SKU'" sortable="'sku'" filter="{'sku':'text'}">
+                                    <a ng-click="entry.hideRows = !entry.hideRows">
+                                        <span class="glyphicon"
+                                              ng-class="{ 'glyphicon-chevron-right': entry.hideRows, 'glyphicon-chevron-down': !entry.hideRows }"></span>
+                                        <strong>{{entry.sku}}</strong>
+                                    </a>
+                                </td>
+                                <td title="'Name'" sortable="'name'" filter="{'name':'text'}">{{entry.name}}</td>
+                                <td title="'Quantity'"></td>
+                                <td class="text-center">
+                                    <div class="buttons">
+                                        <button title="Edit" class="btn btn-primary" ng-click="editEntry(entry)">
+                                            <span class="fa fa-edit"></span>
+                                        </button>
+                                        <button title="Delete" class="btn btn-danger" ng-click="deleteEntry(entry.id)" ng-confirm-click="Are you sure you want to delete this kit?">
+                                            <span class="fa fa-trash-o"></span>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr ng-hide="entry.hideRows" ng-repeat="component in entry.components" class="group-child">
+                                <td>{{component.sku}}</td>
+                                <td>{{component.name}}</td>
+                                <td class="text-center">{{component.pivot.quantity}}</td>
+                                <td></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </article>
+    </div>
+</section>
+
+<script type="text/javascript">
+    pageSetUp();
+
+
+</script>

@@ -1,0 +1,74 @@
+<section id="widget-grid">
+    <div class="row">
+        <article class="col-xs-12">
+            <div class="jarviswidget jarviswidget-color-teal">
+                <header>
+                    <span class="widget-icon"> <i class="fa fa-search"></i> </span>
+                    <h2>Search Amazon</h2>
+                </header>
+                <div>
+                    <div class="widget-body">
+                        <form class="header-search pull-right">
+                            <input id="search" type="text" ng-model="mpn" placeholder="Search MPN" ng-enter="search()">
+                            <button type="button" ng-click="search()" ng-enabled="mpn.length">
+                                <i class="fa fa-search"></i>
+                            </button>
+                        </form>
+                        <div class="row">
+                            <table class="table table-condensed">
+                                <tbody ng-repeat="d in data">
+                                <tr>
+                                    <th class="nowrap">ASIN</th>
+                                    <td><a href="{{d.url}}" target="_blank">{{d.asin}}</a></td>
+                                </tr>
+                                <tr>
+                                    <th class="nowrap">Title</th>
+                                    <td><a href="{{d.url}}" target="_blank">{{d.title}}</a></td>
+                                </tr>
+                                <tr>
+                                    <th class="nowrap">Brand</th>
+                                    <td>{{d.brand}}</td>
+                                </tr>
+                                <tr>
+                                    <th class="nowrap">Sellers</th>
+                                    <td>
+                                        <div ng-show="d.sellers.length == 1">
+                                            <span ng-class="{'bg-success': (d.sellers[0].seller == 'B2C Auto Parts')}">
+                                                {{d.sellers[0].seller}}: <strong>${{d.sellers[0].price | number:2}}<span ng-show="s.shipping && s.shipping != 0"> + {{d.sellers[0].shipping | number:2}} shipping</span></strong>
+                                            </span>
+                                            <button class="btn btn-success btn-xs margin-left-10" ng-show="d.our_price == 0 && d.queue_status == -1" ng-click="listByASIN(d)"><i class="fa fa-plus"></i> LIST HERE</button>
+                                            <button disabled class="btn btn-success btn-xs margin-left-10" ng-show="d.our_price == 0 && d.queue_status != -1">QUEUED FOR LISTING</button>
+                                        </div>
+                                        <div ng-show="d.sellers.length > 1">
+                                            <a class="action-link" ng-click="d.show_sellers = !d.show_sellers">{{d.sellers.length}} sellers</a>, lowest: {{d.lowest_price | number:2}}<span ng-show="d.our_price">, our price: {{d.our_price | number:2}}</span>
+                                            <button class="btn btn-success btn-xs margin-left-10" ng-show="d.our_price == 0 && d.queue_status == -1" ng-click="listByASIN(d)"><i class="fa fa-plus"></i> LIST HERE</button>
+                                            <button disabled class="btn btn-success btn-xs margin-left-10" ng-show="d.our_price == 0 && d.queue_status != -1">QUEUED FOR LISTING</button>
+                                            <ul ng-show="d.show_sellers">
+                                                <li ng-repeat="s in d.sellers">
+                                                    <span ng-class="{'bg-success': (s.seller == 'B2C Auto Parts')}">
+                                                        {{s.seller}}: <strong>${{s.price | number:2}}<span ng-show="s.shipping && s.shipping != 0"> + {{s.shipping | number:2}} shipping</span></strong>
+                                                    </span>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th class="nowrap">Image</th>
+                                    <td>
+                                        <a href="{{d.url}}" target="_blank"><img ng-src="{{d.medium_img}}"/></a>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </article>
+    </div>
+</section>
+
+<script type="text/javascript">
+    pageSetUp();
+</script>

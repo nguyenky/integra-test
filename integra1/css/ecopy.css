@@ -1,0 +1,4 @@
+img { width: 200px; display: block; }
+#copy-form { width: 80%; margin-top: 10px; }
+#restart, #load { margin-top: 5px; }
+iframe { width: 80%; height: 800px; display: block; }

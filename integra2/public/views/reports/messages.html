@@ -1,0 +1,167 @@
+<section id="widget-grid" data-ng-controller="Controller">
+	<div class="row">
+		<article class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+			<div class="jarviswidget jarviswidget-color-teal">
+				<header>
+					<span class="widget-icon"><i class="fa fa-bar-chart-o"></i></span>
+					<h2>Activity Graph</h2>
+                    <div class="widget-toolbar" role="menu">
+
+                        <div class="btn-group">
+                            <button class="btn dropdown-toggle btn-xs btn-warning" data-toggle="dropdown">
+                                {{store}} <i class="fa fa-caret-down"></i>
+                            </button><div class="dropdown-backdrop"></div>
+                            <ul class="dropdown-menu pull-right">
+                                <li ng-repeat="s in stores">
+                                    <a href="#" ng-click="filterStore(s)">{{s}}</a>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <div class="btn-group">
+                            <button class="btn dropdown-toggle btn-xs btn-warning" data-toggle="dropdown">
+                                {{agent.replace('@eocenterprise.com', '')}} <i class="fa fa-caret-down"></i>
+                            </button><div class="dropdown-backdrop"></div>
+                            <ul class="dropdown-menu pull-right">
+                                <li><a href="#" ng-click="filterAgent('All')">All</a></li>
+                                <li ng-repeat="s in agents">
+                                    <a href="#" ng-click="filterAgent(s.email)">{{s.email.replace('@eocenterprise.com', '')}}</a>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <div class="btn-group">
+                            <button class="btn dropdown-toggle btn-xs btn-warning" data-toggle="dropdown">
+                                {{days}} days <i class="fa fa-caret-down"></i>
+                            </button><div class="dropdown-backdrop"></div>
+                            <ul class="dropdown-menu pull-right">
+                                <li>
+                                    <a href="#" ng-click="reloadData(2)">2 days</a>
+                                </li>
+                                <li>
+                                    <a href="#" ng-click="reloadData(5)">5 days</a>
+                                </li>
+                                <li>
+                                    <a href="#" ng-click="reloadData(7)">7 days</a>
+                                </li>
+                                <li>
+                                    <a href="#" ng-click="reloadData(14)">14 days</a>
+                                </li>
+                                <li>
+                                    <a href="#" ng-click="reloadData(21)">21 days</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+				</header>
+				<div>
+					<div class="widget-body chart-container">
+                        <canvas class="chart chart-bar" chart-data="activities" chart-labels="activities_x" chart-series="activities_u" chart-options="options" chart-colours="colors"></canvas>
+					</div>
+				</div>
+			</div>
+		</article>
+	</div>
+</section>
+
+<script type="text/javascript">
+	pageSetUp();
+
+    function Controller ($scope, $http)
+    {
+        window.scope = $scope;
+
+        $scope.colours = ['#72C02C', '#3498DB', '#717984', '#F1C40F'];
+
+        $scope.options = {
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        beginAtZero:true
+                    }
+                }]
+            },
+            legend: {
+                display: true
+            }
+        };
+
+        $scope.activities = [];
+        $scope.activities_x = [];
+        $scope.activities_u = [];
+
+        $scope.agents = [];
+        $scope.stores = ['All', 'eBay', 'Amazon', 'Online Stores'];
+
+        $scope.agent = 'All';
+        $scope.store = 'All';
+
+        $scope.filterStore = function(s) {
+            $scope.store = s;
+            $scope.reloadData($scope.days);
+        };
+
+        $scope.filterAgent = function(s) {
+            $scope.agent = s;
+            $scope.reloadData($scope.days);
+        };
+
+        $scope.reloadData = function(days) {
+            $scope.days = days;
+
+            $http.get('/api/messages/graph?days=' + days + '&store=' + encodeURIComponent($scope.store) + '&agent=' + encodeURIComponent($scope.agent))
+                    .success(function (data) {
+                        var now = new Date();
+                        var utc = now.getTime() + (now.getTimezoneOffset() * 60000);
+                        now = new Date(utc + (3600000*-4));
+
+                        $scope.agents = data.agents;
+
+                        $scope.activities = [];
+                        $scope.activities_x = [];
+                        $scope.activities_u = [];
+
+                        for (var i = 0; i < data.activities.length; i++) {
+                            if ($scope.activities_u.indexOf(data.activities[i].u) === -1)
+                                $scope.activities_u.push(data.activities[i].u);
+                        }
+
+                        for (var i = 0; i < $scope.activities_u.length; i++) {
+                            var current = [];
+
+                            for (var h = $scope.days * 24; h >= 0; h--) {
+                                var cur = new Date();
+                                cur.setHours(now.getHours() - h);
+
+                                var mm = (cur.getMonth() + 1).toString();
+                                var dd = cur.getDate().toString();
+                                var hh = cur.getHours().toString();
+
+                                var ch = [mm.length == 1 ? '0' + mm : mm, '/', dd.length == 1 ? '0' + dd : dd, ' ', hh.length == 1 ? '0' + hh : hh, ':00'].join('');
+
+                                if ($scope.activities_x.indexOf(ch) === -1)
+                                    $scope.activities_x.push(ch);
+
+                                var val = 0;
+
+                                for (var j = 0; j < data.activities.length; j++) {
+                                    if (data.activities[j].u == $scope.activities_u[i] && data.activities[j].d == ch) {
+                                        val = data.activities[j].c;
+                                        break;
+                                    }
+                                }
+
+                                current.push(val);
+                            }
+
+                            $scope.activities.push(current);
+                        }
+                    })
+                    .error(function () {
+                        $scope.$popError('Unable to load graph data');
+                    });
+        };
+
+        $scope.reloadData(2);
+    }
+</script>

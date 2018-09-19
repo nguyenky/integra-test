@@ -1,0 +1,87 @@
+<section id="widget-grid">
+    <div class="row">
+        <article class="col-xs-12 col-sm-8 col-md-6">
+            <div class="jarviswidget jarviswidget-color-teal">
+                <header>
+                    <span class="widget-icon"> <i class="fa fa-edit"></i> </span>
+                    <h2>Invoice Details</h2>
+                </header>
+                <div>
+                    <div class="widget-body no-padding">
+                        <table class="table table-hover">
+                            <tbody>
+                            <tr>
+                                <th>Order Date</th>
+                                <td>{{entry.order_date}}</td>
+                            </tr>
+                            <tr>
+                                <th>Warehouse</th>
+                                <td>{{entry.supplier_id}}</td>
+                            </tr>
+                            <tr>
+                                <th>Invoice Number</th>
+                                <td>{{entry.invoice_num}}</td>
+                            </tr>
+                            <tr>
+                                <th>Order Number</th>
+                                <td>{{entry.order_num}}</td>
+                            </tr>
+                            <tr>
+                                <th>PO Number</th>
+                                <td>{{entry.po_num}}</td>
+                            </tr>
+                            <tr>
+                                <th>Tracking Number</th>
+                                <td>{{entry.tracking_num}}</td>
+                            </tr>
+                            <tr>
+                                <th>Total</th>
+                                <td>{{entry.total}}</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </article>
+    </div>
+
+    <div class="row">
+        <article class="col-xs-12">
+            <div class="jarviswidget jarviswidget-color-teal">
+                <header>
+                    <span class="widget-icon"> <i class="fa fa-edit"></i> </span>
+                    <h2>Items</h2>
+                </header>
+                <div>
+                    <div class="widget-body no-padding">
+                        <table class="table table-hover">
+                            <thead>
+                            <tr>
+                                <th>SKU</th>
+                                <th class="text-center">Ordered</th>
+                                <th class="text-center">Shipped</th>
+                                <th class="text-right">Unit Price</th>
+                                <th class="text-right">Charged</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr ng-repeat="item in entry.items">
+                                <td>{{item.sku}}</td>
+                                <td class="text-center">{{item.quantity}}</td>
+                                <td class="text-center">{{item.quantity_shipped}}</td>
+                                <td class="text-right">{{item.unit_price}}</td>
+                                <td class="text-right">{{item.quantity_shipped * item.unit_price | number:2}}</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </article>
+    </div>
+</section>
+
+<script type="text/javascript">
+    pageSetUp();
+</script>

@@ -1,0 +1,98 @@
+<section id="widget-grid">
+    <div class="row">
+        <article class="col-xs-12 col-sm-8 col-md-6">
+            <div class="jarviswidget jarviswidget-color-teal">
+                <header>
+                    <span class="widget-icon"> <i class="fa fa-edit"></i> </span>
+                    <h2>Return Details</h2>
+                </header>
+                <div>
+                    <div class="widget-body no-padding">
+                        <table class="table table-hover">
+                            <tbody>
+                            <tr>
+                                <th>Request Date</th>
+                                <td>{{entry.return_date}}</td>
+                            </tr>
+                            <tr>
+                                <th>Warehouse</th>
+                                <td>{{entry.supplier_id}}</td>
+                            </tr>
+                            <tr>
+                                <th>RA Number</th>
+                                <td>{{entry.return_num}}</td>
+                            </tr>
+                            <tr>
+                                <th>Status</th>
+                                <td>
+                                    <span ng-show="entry.status=='Pending RA'" class="label label-warning">Pending RA</span>
+                                    <span ng-show="entry.status=='Processing'" class="label label-warning">Processing</span>
+                                    <span ng-show="entry.status=='Partial Credit'" class="label label-success">Partial Credit</span>
+                                    <span ng-show="entry.status=='Full Credit'" class="label label-success">Full Credit</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Credit Date</th>
+                                <td>{{entry.credit_date}}</td>
+                            </tr>
+                            <tr>
+                                <th>Credit Number</th>
+                                <td>{{entry.credit_num}}</td>
+                            </tr>
+                            <tr>
+                                <th>Total Credited</th>
+                                <td>{{entry.total_credited}}</td>
+                            </tr>
+                            <tr ng-show="entry.has_doc">
+                                <th>RA Document</th>
+                                <td><a href="/ra_doc/{{entry.id}}.htm" target="_blank">Print</a></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </article>
+    </div>
+
+    <div class="row">
+        <article class="col-xs-12">
+            <div class="jarviswidget jarviswidget-color-teal">
+                <header>
+                    <span class="widget-icon"> <i class="fa fa-edit"></i> </span>
+                    <h2>Items</h2>
+                </header>
+                <div>
+                    <div class="widget-body no-padding">
+                        <table class="table table-hover">
+                            <thead>
+                            <tr>
+                                <th>Invoice Number</th>
+                                <th>SKU</th>
+                                <th class="text-center">Requested Quantity</th>
+                                <th class="text-center">Credited Quantity</th>
+                                <th class="text-right">Credited Unit Price</th>
+                                <th class="text-right">Credited Subtotal</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr ng-repeat="item in entry.items">
+                                <td>{{item.invoice_num}}</td>
+                                <td>{{item.sku}}</td>
+                                <td class="text-center">{{item.quantity_requested}}</td>
+                                <td class="text-center">{{item.quantity_credited}}</td>
+                                <td class="text-right">{{item.unit_price_credited}}</td>
+                                <td class="text-right">{{item.quantity_credited * item.unit_price_credited}}</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </article>
+    </div>
+</section>
+
+<script type="text/javascript">
+    pageSetUp();
+</script>

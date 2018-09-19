@@ -1,0 +1,62 @@
+<section id="widget-grid">
+
+    <div class="row">
+        <article class="col-xs-12 col-sm-8 col-md-6 col-lg-6">
+            <div class="jarviswidget jarviswidget-color-teal">
+                <header>
+                    <span class="widget-icon"> <i class="glyphicon glyphicon-import"></i> </span>
+                    <h2>Warehouse Inventory CSV</h2>
+                </header>
+                <div>
+                    <div class="widget-body no-padding">
+                        <h3 class="text-center">
+                            <a href="/api/products/download_inventory2">Download Current Inventory (New Format)</a>
+                            <br/>
+                            <a href="/api/products/download_inventory">Download Current Inventory (Old Format)</a>
+                            <br/>
+                            <a href="templates/inventory.csv">Download CSV template</a>
+                        </h3>
+                        <form class="dropzone"></form>
+                    </div>
+                </div>
+            </div>
+        </article>
+    </div>
+
+</section>
+
+<script type="text/javascript">
+    pageSetUp();
+
+    var pagefunction = function()
+    {
+        Dropzone.autoDiscover = false;
+        $('.dropzone').dropzone(
+                {
+                    url: "/api/products/upload_inventory",
+                    addRemoveLinks : false,
+                    uploadMultiple: false,
+                    maxFilesize: 10,
+                    init: function()
+                    {
+                        var scope = angular.element($('.dropzone')).scope();
+                        scope.dropzone = this;
+
+                        this.on("success", function(file, data)
+                        {
+                            var scope = angular.element($('.dropzone')).scope();
+                            scope.$apply(function()
+                            {
+                                scope.$popOk(data.newCount + ' ' + 'entries processed.');
+                            });
+                        });
+                        this.on("error", function(file, data)
+                        {
+                            scope.$popError("Error while uploading the file", data, data);
+                        });
+                    }
+                });
+    };
+
+    loadScript("js/plugin/dropzone/dropzone.min.js", pagefunction);
+</script>

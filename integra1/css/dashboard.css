@@ -1,0 +1,67 @@
+.column
+{
+	width: 49%;
+	margin-right: .5%;
+	min-height: 300px;
+	background: #fff;
+	float: left;
+}
+
+.column .dragbox
+{
+	margin: 0;
+	margin-bottom: 10px;
+	background: #fff;
+	position: relative;
+	border: 1px solid #ddd;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+	width: 100%;
+	padding: 0;
+    background: url("../img/handle-h.png") bottom no-repeat;
+}
+
+.column .dragbox h2
+{
+	margin: 0;
+	font-size: 12px;
+	padding: 5px;
+	background: #eee;
+	color: #000;
+	border-bottom: 1px solid #eee;
+	font-family: Verdana;
+	cursor: move;
+	background: url(../datagrid/styles/x-blue/images/header_background.gif) repeat-x right bottom;
+}
+
+.dragbox-content
+{
+	background: #fff;
+	min-height: 100px;
+	margin: 0;
+	width: 100%;
+	position: relative;
+	font-family: 'Lucida Grande', Verdana; font-size: 0.8em; line-height: 1.5em;
+}
+
+.column  .placeholder
+{
+	background: #f0f0f0;
+	border: 1px dashed #ddd;
+}
+
+.widgetframe
+{
+	position: absolute;
+	width: 99.95%;
+	height: 100%;
+	border: 0;
+	margin: 0;
+}
+
+.banner
+{
+	display: block;
+	clear: both;
+	margin-bottom: 7px;
+}

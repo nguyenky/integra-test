@@ -1,0 +1,88 @@
+<section id="widget-grid" data-ng-controller="Controller">
+    <div class="row">
+        <article class="col-xs-6">
+            <div class="jarviswidget jarviswidget-color-teal">
+                <header>
+                    <span class="widget-icon"> <i class="fa fa-refresh"></i> </span>
+                    <h2>Upgrade eBay Template</h2>
+                </header>
+                <div>
+                    <div class="widget-body">
+                        <form class="form">
+                            <div class="form-group">
+                                <div class="col-xs-6">
+                                    <input class="form-control" type="text" ng-model="itemId" placeholder="Enter Item ID">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-xs-6">
+                                    <button class="btn btn-primary" type="button" ng-click="preview()" ng-disabled="!itemId.length">
+                                        Preview
+                                    </button>
+                                    <button class="btn btn-warning" type="button" ng-click="upgrade()" ng-disabled="!itemId.length || wait">
+                                        Upgrade
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </article>
+    </div>
+    <div class="row" ng-show="previewUrl">
+        <article class="col-xs-12">
+            <div class="jarviswidget jarviswidget-color-teal">
+                <header>
+                    <span class="widget-icon"> <i class="fa fa-eye"></i> </span>
+                    <h2>Preview</h2>
+                </header>
+                <div>
+                    <div class="widget-body">
+                        <iframe ng-src="{{previewUrl}}" class="preview"></iframe>
+                    </div>
+                </div>
+            </div>
+        </article>
+    </div>
+</section>
+
+<script type="text/javascript">
+    pageSetUp();
+
+    function Controller ($scope, $http, $sce)
+    {
+        $scope.wait = false;
+
+        $scope.canUpgrade = function()
+        {
+            return ($scope.itemId && $scope.itemId.length > 0 && !$scope.wait);
+        };
+
+        $scope.preview = function()
+        {
+            $scope.previewUrl = $sce.trustAsResourceUrl('/api/ebay/preview_v2/' + $scope.itemId);
+        };
+
+        $scope.upgrade = function()
+        {
+            $scope.wait = true;
+
+            $http.post('/api/ebay/upgrade_template/' + $scope.itemId)
+                    .success(function (data)
+                    {
+                        $scope.wait = false;
+                        if (data.ack == 'Success' || data.ack == 'Warning')
+                        {
+                            $scope.$popOk('Listing template was upgraded successfully');
+                            $scope.previewUrl = null;
+                        }
+                        else $scope.$popError('Error while revising listing', null, data.error);
+                    }).error(function (data)
+                    {
+                        $scope.wait = false;
+                        $scope.$popError('Error while revising listing');
+                    });
+        };
+    }
+</script>

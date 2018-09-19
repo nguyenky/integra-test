@@ -1,0 +1,38 @@
+<section id="widget-grid">
+    <div class="row">
+        <article class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+            <div class="jarviswidget jarviswidget-color-teal">
+                <header>
+                    <span class="widget-icon"> <i class="fa fa-dollar"></i> </span>
+                    <h2>PayPal Invoices</h2>
+                </header>
+                <div>
+                    <div class="widget-body no-padding">
+                        <table ng-table="tableParams" show-filter="true" class="table table-striped table-hover">
+                            <tbody>
+                            <tr ng-repeat="entry in $data" ng-click="openEntry(entry.id)" class="action-link">
+                                <td data-title="'Date'" sortable="'invoice_date'" filter="{'invoice_date':'date'}">{{entry.invoice_date}}</td>
+                                <td data-title="'Invoice Number'" sortable="'invoice_num'" filter="{'invoice_num':'text'}">
+                                    <a ng-show="entry.paypal_invoice_id" target="_blank" href="{{paypalUrl}}/us/cgi_bin/webscr?cmd=_pay-inv&id={{entry.paypal_invoice_id}}&viewtype=altview">{{entry.invoice_num}}</a>
+                                    <span ng-hide="entry.paypal_invoice_id">{{entry.invoice_num}}</span>
+                                </td>
+                                <td data-title="'Email'" sortable="'email'" filter="{'email':'text'}">{{entry.email}}</td>
+                                <td data-title="'Total'" sortable="'total'" filter="{'total':'number'}" class="text-right">{{entry.total}}</td>
+                                <td data-title="'Status'" sortable="'status'" filter="{'status':'select'}" filter-data="paypalInvoiceStatusFilter()" class="text-center">
+                                    <span ng-show="entry.status=='Unpaid'" class="label label-warning">Unpaid</span>
+                                    <span ng-show="entry.status=='Paid'" class="label label-success">Paid</span>
+                                </td>
+                                <td data-title="'Record Number'" sortable="'order.record_num'" filter="{'order.record_num':'text'}"><a ng-show="entry.order_id" href="http://integra2.eocenterprise.com/#/orders/view/{{entry.order_id}}">{{entry.order.record_num}}</a></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </article>
+    </div>
+</section>
+
+<script type="text/javascript">
+    pageSetUp();
+</script>

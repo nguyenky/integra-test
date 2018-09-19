@@ -1,0 +1,115 @@
+<section id="widget-grid" data-ng-controller="Controller">
+	<div class="row">
+		<article class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
+			<div class="jarviswidget jarviswidget-color-teal">
+				<header>
+					<span class="widget-icon"><i class="fa fa-bar-chart-o"></i></span>
+					<h2>{{store}} Sales - Last 7 Days <span ng-show="type">({{type}})</span></h2>
+				</header>
+				<div>
+					<div class="widget-body chart-container">
+                        <canvas class="chart chart-bar" chart-data="d7" chart-labels="d7x"></canvas>
+					</div>
+				</div>
+			</div>
+		</article>
+
+        <article class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
+            <div class="jarviswidget jarviswidget-color-teal">
+                <header>
+                    <span class="widget-icon"><i class="fa fa-bar-chart-o"></i></span>
+                    <h2>{{store}} Sales - Month to Date <span ng-show="type">({{type}})</span></h2>
+                </header>
+                <div>
+                    <div class="widget-body chart-container">
+                        <canvas class="chart chart-bar" chart-data="mtd" chart-labels="mtdx"></canvas>
+                    </div>
+                </div>
+            </div>
+        </article>
+	</div>
+
+    <div class="row">
+        <article class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+            <div class="jarviswidget jarviswidget-color-teal">
+                <header>
+                    <span class="widget-icon"><i class="fa fa-bar-chart-o"></i></span>
+                    <h2>{{store}} Sales - Last 3 Months <span ng-show="type">({{type}})</span></h2>
+                </header>
+                <div>
+                    <div class="widget-body chart-container">
+                        <canvas class="chart chart-bar" chart-data="m3" chart-labels="m3x"></canvas>
+                    </div>
+                </div>
+            </div>
+        </article>
+    </div>
+</section>
+
+<script type="text/javascript">
+	pageSetUp();
+
+    function Controller ($scope, $http, $location)
+    {
+        $scope.type = '';
+
+        var parts = $location.url().split('/');
+        var last = parts[parts.length-1];
+
+        if (~last.indexOf('_'))
+        {
+            var fields = last.split('_');
+            last = fields[0];
+
+            $scope.type = fields[1];
+        }
+
+        if (last == 'ebay') { $scope.store = 'eBay'; $scope.store_key = 'eBay'; }
+        else if (last == 'amazon') { $scope.store = 'Amazon'; $scope.store_key = 'Amazon'; }
+        else if (last == 'europortparts') { $scope.store = 'Euro Port'; $scope.store_key = 'europortparts'; }
+
+        if ($scope.type.length > 0)
+            $scope.store_key = $scope.store_key + '_' + $scope.type;
+
+        $scope.d7x = [];
+        $scope.d7 = [];
+
+        $scope.mtdx = [];
+        $scope.mtd = [];
+
+        $scope.m3x = [];
+        $scope.m3 = [];
+
+        $http.get('/api/orders/sales_graph/' + $scope.store_key)
+                .success(function(data)
+                {
+                    $scope.d7x = [];
+                    $scope.d7 = [];
+
+                    $scope.mtdx = [];
+                    $scope.mtd = [];
+
+                    $scope.m3x = [];
+                    $scope.m3 = [];
+
+                    for (var i = 0; i < data.d7.length; i++) {
+                        $scope.d7x.push(data.d7[i].d);
+                        $scope.d7.push(data.d7[i].s);
+                    }
+
+                    for (var i = 0; i < data.mtd.length; i++) {
+                        $scope.mtdx.push(data.mtd[i].d);
+                        $scope.mtd.push(data.mtd[i].s);
+                    }
+                    
+                    for (var i = 0; i < data.m3.length; i++) {
+                        $scope.m3x.push(data.m3[i].d);
+                        $scope.m3.push(data.m3[i].s);
+                    }
+                })
+                .error(function()
+                {
+                    $scope.$popError('Unable to load graph data');
+                });
+    }
+</script>
