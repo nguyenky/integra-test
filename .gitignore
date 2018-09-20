@@ -12,3 +12,4 @@ error_log
 /integra1/.DS_Store
 /integra2/composer.lock
 /db-restore
+/test
